@@ -1,0 +1,86 @@
+apiVersion: "nais.io/v1alpha1"
+kind: "Application"
+metadata:
+  name: tms-kafka-dashboard
+  namespace: min-side
+  labels:
+    team: min-side
+spec:
+  image: {{version}}
+  port: 8080
+  liveness:
+    path: /tms-kafka-dashboard/internal/isAlive
+    initialDelay: 15
+  readiness:
+    path: /tms-kafka-dashboard/internal/isReady
+    initialDelay: 15
+  prometheus:
+    enabled: true
+    path: /tms-kafka-dashboard/metrics
+  replicas:
+    min: 1
+    max: 1
+  resources:
+    limits:
+      memory: 1024Mi
+    requests:
+      cpu: 20m
+      memory: 128Mi
+  azure:
+    application:
+      enabled: true
+      tenant: nav.no
+      claims:
+        groups:
+          - id: "cbe637e2-317f-48e1-a951-ce52fcea3fae"
+  kafka:
+    pool: nav-dev
+  env:
+    - name: KAFKA_APP_CONFIG
+      value: >
+        {
+          "topics": [
+            {
+              "name": "min-side.aapen-brukernotifikasjon-beskjed-v1",
+              "keyDeserializerType": "AVRO",
+              "valueDeserializerType": "AVRO"
+            },
+            {
+              "name": "min-side.aapen-brukernotifikasjon-innboks-v1",
+              "keyDeserializerType": "AVRO",
+              "valueDeserializerType": "AVRO"
+            },
+            {
+              "name": "min-side.aapen-brukernotifikasjon-oppgave-v1",
+              "keyDeserializerType": "AVRO",
+              "valueDeserializerType": "AVRO"
+            },
+            {
+              "name": "min-side.aapen-brukernotifikasjon-done-v1",
+              "keyDeserializerType": "AVRO",
+              "valueDeserializerType": "AVRO"
+            },
+            {
+              "name": "min-side.brukervarsel-v1"
+            },
+            {
+              "name": "min-side.aapen-utkast-v1"
+            },
+            {
+              "name": "min-side.aapen-varsel-hendelse-v1"
+            },
+            {
+              "name": "min-side.aapen-microfrontend-v1"
+            },
+            {
+              "name": "min-side.aapen-brukervarsel-v1"
+            }
+          ],
+          "applications": [
+            {
+              "name": "tms-varsel-authority",
+              "groupId": "varsel-authority-008",
+              "topics": ["min-side.brukervarsel-v1", "min-side.aapen-brukervarsel-v1"]
+            }
+          ]
+        }
