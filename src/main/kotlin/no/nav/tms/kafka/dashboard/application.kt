@@ -17,7 +17,6 @@ fun main() {
     embeddedServer(
         factory = Netty,
         module = {
-            rootPath = "tms-kafka-dashboard"
             kafkaDashboard(adminService)
         },
         configure = {

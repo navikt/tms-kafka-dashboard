@@ -9,14 +9,14 @@ spec:
   image: {{version}}
   port: 8080
   liveness:
-    path: /tms-kafka-dashboard/internal/isAlive
+    path: /internal/isAlive
     initialDelay: 15
   readiness:
-    path: /tms-kafka-dashboard/internal/isReady
+    path: /internal/isReady
     initialDelay: 15
   prometheus:
     enabled: true
-    path: /tms-kafka-dashboard/metrics
+    path: /metrics
   replicas:
     min: 1
     max: 1
