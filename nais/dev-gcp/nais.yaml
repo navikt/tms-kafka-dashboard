@@ -33,6 +33,9 @@ spec:
       claims:
         groups:
           - id: "cbe637e2-317f-48e1-a951-ce52fcea3fae"
+    sidecar:
+      enabled: true
+      autoLogin: true
   ingresses:
     - https://tms-kafka-dashboard.intern.dev.nav.no
   kafka:
