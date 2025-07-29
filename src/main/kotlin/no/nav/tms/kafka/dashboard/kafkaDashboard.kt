@@ -12,22 +12,19 @@ import io.ktor.server.response.respondText
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.http.*
 import io.ktor.server.auth.*
+import io.ktor.server.http.content.*
+import io.ktor.server.plugins.cors.routing.*
 import io.ktor.server.routing.*
 import no.nav.tms.common.metrics.installTmsApiMetrics
-import no.nav.tms.kafka.dashboard.controller.adminRoutes
-import no.nav.tms.kafka.dashboard.service.KafkaAdminService
+import no.nav.tms.kafka.dashboard.api.adminRoutes
+import no.nav.tms.kafka.dashboard.api.KafkaAdminService
+import no.nav.tms.kafka.dashboard.web.index
 import no.nav.tms.token.support.azure.validation.azure
 import java.text.DateFormat
 
 fun Application.kafkaDashboard(
     adminService: KafkaAdminService,
-    installAuthenticatorsFunction: Application.() -> Unit = {
-        authentication {
-            azure {
-                setAsDefault = true
-            }
-        }
-    }
+    installAuthenticatorsFunction: Application.() -> Unit
 ) {
 
     val log = KotlinLogging.logger {}
@@ -44,6 +41,11 @@ fun Application.kafkaDashboard(
             registerModule(JavaTimeModule())
             dateFormat = DateFormat.getDateTimeInstance()
         }
+    }
+
+    install(CORS) {
+        allowCredentials = true
+        anyHost()
     }
 
     install(StatusPages) {
@@ -69,6 +71,10 @@ fun Application.kafkaDashboard(
     routing {
         authenticate {
             adminRoutes(adminService)
+        }
+        index(adminService)
+        staticResources("/static", "static") {
+            preCompressed(CompressedFileType.GZIP)
         }
         get("/internal/isAlive") {
             call.respondText(text = "ALIVE", contentType = ContentType.Text.Plain)

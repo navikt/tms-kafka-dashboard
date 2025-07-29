@@ -1,0 +1,70 @@
+@import url("https://cdn.nav.no/aksel/@navikt/ds-css/5.7.3/index.min.css");
+
+
+.card {
+    background-color: white;
+    padding: 1rem;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+}
+.card__title {
+    margin-bottom: 1rem !important;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    padding: 0 2rem;
+    background-color: white;
+    box-shadow: 0 3px 3px 0 rgba(183, 177, 169, 0.5);
+}
+.header__title {
+    padding: 1rem;
+    margin: 0 auto;
+}
+
+html,
+body {
+    margin: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: var(--a-gray-100);
+    overflow-x: hidden;
+}
+
+html *,
+body * {
+    box-sizing: border-box;
+}
+
+.kafka-manager {
+    display: grid;
+    grid-template-rows: min-content 1fr;
+}
+
+.view {
+    margin: 0 auto;
+    max-width: 1900px;
+    padding: 2rem;
+}
+
+.card__content {
+    display: flex;
+    flex-direction: column;
+}
+.card__content .navds-form-field {
+    margin-bottom: var(--a-spacing-6);
+}
+
+.kafka-dashboard {
+    display: grid;
+    grid-column-gap: 2rem;
+    grid-template-rows: 1fr;
+    grid-template-columns: 600px 1fr;
+}
+
+.kafka-dashboard__col > *:not(:last-child) {
+    margin-bottom: 2rem;
+}

@@ -1,12 +1,11 @@
-package no.nav.tms.kafka.dashboard.utils
+package no.nav.tms.kafka.dashboard.api
 
 import io.confluent.kafka.serializers.KafkaAvroDeserializer
 import io.confluent.kafka.serializers.KafkaAvroSerializerConfig
-import no.nav.tms.common.util.config.StringEnvVar.getEnvVar
-import no.nav.tms.kafka.dashboard.controller.MAX_KAFKA_RECORDS
-import no.nav.tms.kafka.dashboard.domain.DeserializerType
+import no.nav.tms.common.util.config.StringEnvVar
+import no.nav.tms.kafka.dashboard.DeserializerType
 import org.apache.kafka.clients.CommonClientConfigs
-import org.apache.kafka.clients.consumer.ConsumerConfig.*
+import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.common.config.SslConfigs
 import org.apache.kafka.common.security.auth.SecurityProtocol
 import org.apache.kafka.common.serialization.*
@@ -32,13 +31,13 @@ object KafkaPropertiesFactory {
             configureAvro(environment)
         }
 
-        put(MAX_POLL_RECORDS_CONFIG, MAX_KAFKA_RECORDS)
-        put(ENABLE_AUTO_COMMIT_CONFIG, "false")
-        put(AUTO_OFFSET_RESET_CONFIG, "earliest")
-        put(MAX_POLL_INTERVAL_MS_CONFIG, 300_000)
+        put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, MAX_KAFKA_RECORDS)
+        put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false")
+        put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest")
+        put(ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG, 300_000)
 
-        put(KEY_DESERIALIZER_CLASS_CONFIG, findDeserializer(keyDeserializerType).name)
-        put(VALUE_DESERIALIZER_CLASS_CONFIG, findDeserializer(valueDeserializerType).name)
+        put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, findDeserializer(keyDeserializerType).name)
+        put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, findDeserializer(valueDeserializerType).name)
     }
 
     private fun Properties.configureBrokers(env: Map<String, String>) {
@@ -63,9 +62,9 @@ object KafkaPropertiesFactory {
     }
 
     private fun Properties.configureAvro(env: Map<String, String>) {
-        val schemaRegistryUrl = getEnvVar(KAFKA_SCHEMA_REGISTRY)
-        val schemaRegistryUsername = getEnvVar(KAFKA_SCHEMA_REGISTRY_USER)
-        val schemaRegistryPassword = getEnvVar(KAFKA_SCHEMA_REGISTRY_PASSWORD)
+        val schemaRegistryUrl = StringEnvVar.getEnvVar(KAFKA_SCHEMA_REGISTRY)
+        val schemaRegistryUsername = StringEnvVar.getEnvVar(KAFKA_SCHEMA_REGISTRY_USER)
+        val schemaRegistryPassword = StringEnvVar.getEnvVar(KAFKA_SCHEMA_REGISTRY_PASSWORD)
 
         put(KafkaAvroSerializerConfig.SCHEMA_REGISTRY_URL_CONFIG, schemaRegistryUrl)
         put(KafkaAvroSerializerConfig.BASIC_AUTH_CREDENTIALS_SOURCE, "USER_INFO")

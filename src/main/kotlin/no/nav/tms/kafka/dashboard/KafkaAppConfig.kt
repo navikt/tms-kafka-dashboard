@@ -1,8 +1,8 @@
-package no.nav.tms.kafka.dashboard.domain
+package no.nav.tms.kafka.dashboard
 
 data class KafkaAppConfig (
-    val topics: List<TopicConfig>,
-    val applications: List<ApplicationConfig>
+    val topics: List<TopicConfig> = emptyList(),
+    val applications: List<ApplicationConfig> = emptyList()
 ) {
     init {
         val appsWithUnknownTopics = applications.filter { app ->

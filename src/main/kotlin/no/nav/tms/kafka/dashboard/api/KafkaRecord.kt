@@ -1,4 +1,4 @@
-package no.nav.tms.kafka.dashboard.domain
+package no.nav.tms.kafka.dashboard.api
 
 data class KafkaRecord(
     val partition: Int,
