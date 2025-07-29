@@ -1,10 +1,9 @@
-package no.nav.tms.kafka.dashboard.controller
+package no.nav.tms.kafka.dashboard.api
 
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import no.nav.tms.kafka.dashboard.service.KafkaAdminService
-import no.nav.tms.kafka.dashboard.utils.DTOMappers.toTopicWithOffset
+import no.nav.tms.kafka.dashboard.api.DTOMappers.toTopicWithOffset
 
 fun Route.adminRoutes(
     kafkaAdminService: KafkaAdminService,

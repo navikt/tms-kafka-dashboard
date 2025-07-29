@@ -1,4 +1,4 @@
-package no.nav.tms.kafka.dashboard.utils
+package no.nav.tms.kafka.dashboard.api
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import org.apache.avro.generic.GenericRecord

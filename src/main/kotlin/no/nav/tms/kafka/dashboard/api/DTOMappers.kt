@@ -1,8 +1,5 @@
-package no.nav.tms.kafka.dashboard.utils
+package no.nav.tms.kafka.dashboard.api
 
-import no.nav.tms.kafka.dashboard.controller.TopicWithOffset
-import no.nav.tms.kafka.dashboard.domain.KafkaRecord
-import no.nav.tms.kafka.dashboard.domain.KafkaRecordHeader
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.clients.consumer.OffsetAndMetadata
 import org.apache.kafka.common.TopicPartition

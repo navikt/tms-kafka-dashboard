@@ -1,34 +1,45 @@
-package no.nav.tms.kafka.dashboard.service
+package no.nav.tms.kafka.dashboard.api
 
-import no.nav.tms.kafka.dashboard.controller.*
-import no.nav.tms.kafka.dashboard.domain.KafkaAppConfig
-import no.nav.tms.kafka.dashboard.domain.KafkaRecord
-import no.nav.tms.kafka.dashboard.domain.TopicConfig
-import no.nav.tms.kafka.dashboard.utils.ConsumerRecordMapper
-import no.nav.tms.kafka.dashboard.utils.DTOMappers.toKafkaRecordHeader
-import no.nav.tms.kafka.dashboard.utils.KafkaPropertiesFactory.createAivenConsumerProperties
+import no.nav.tms.kafka.dashboard.KafkaAppConfig
+import no.nav.tms.kafka.dashboard.TopicConfig
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.apache.kafka.clients.consumer.OffsetAndMetadata
 import org.apache.kafka.common.TopicPartition
+import org.joda.time.Instant
 import java.time.Duration
 import java.util.*
-import java.util.Collections.singleton
 import kotlin.math.max
 
-class KafkaAdminService(
-    private val appConfig: KafkaAppConfig,
-) {
+interface KafkaAdminService {
 
-    fun getAvailableTopics(): List<String> {
+    fun getAvailableTopics(): List<String>
+
+    fun getApplications(): List<String>
+
+    fun readTopic(request: ReadTopicRequest): List<KafkaRecord>
+
+    fun getLastRecordOffset(request: GetLastRecordOffsetRequest): Long
+
+    fun getConsumerOffsets(request: GetConsumerOffsetsRequest): Map<TopicPartition, OffsetAndMetadata>
+
+    fun setConsumerOffset(request: SetConsumerOffsetRequest)
+
+}
+
+class KafkaAdminServiceImpl(
+    private val appConfig: KafkaAppConfig
+) : KafkaAdminService {
+
+    override fun getAvailableTopics(): List<String> {
         return appConfig.topics.map { it.name }
     }
 
-    fun getApplications(): List<String> {
+    override fun getApplications(): List<String> {
         return appConfig.applications.map { it.name }
     }
 
-    fun readTopic(request: ReadTopicRequest): List<KafkaRecord> {
+    override fun readTopic(request: ReadTopicRequest): List<KafkaRecord> {
         val kafkaConsumer = createKafkaConsumerForTopic(null, request.topicName)
         val kafkaRecords = ArrayList<KafkaRecord>()
 
@@ -53,7 +64,7 @@ class KafkaAdminService(
 
                 val kafkaRecordsBatch = consumerRecords.records(request.topicName).map {
                     val stringRecord = ConsumerRecordMapper.mapConsumerRecord(it)
-                    toKafkaRecordHeader(stringRecord)
+                    DTOMappers.toKafkaRecordHeader(stringRecord)
                 }
 
                 val filteredRecords = filterRecords(request.filter, kafkaRecordsBatch)
@@ -65,19 +76,19 @@ class KafkaAdminService(
         }
     }
 
-    fun getLastRecordOffset(request: GetLastRecordOffsetRequest): Long {
+    override fun getLastRecordOffset(request: GetLastRecordOffsetRequest): Long {
         val topicPartition = TopicPartition(request.topicName, request.topicPartition)
         val kafkaConsumer = createKafkaConsumerForTopic(null, request.topicName)
 
         kafkaConsumer.use { consumer ->
-            consumer.assign(singleton(topicPartition))
-            consumer.seekToEnd(singleton(topicPartition))
+            consumer.assign(Collections.singleton(topicPartition))
+            consumer.seekToEnd(Collections.singleton(topicPartition))
 
             return consumer.position(topicPartition)
         }
     }
 
-    fun getConsumerOffsets(request: GetConsumerOffsetsRequest): Map<TopicPartition, OffsetAndMetadata> {
+    override fun getConsumerOffsets(request: GetConsumerOffsetsRequest): Map<TopicPartition, OffsetAndMetadata> {
         val kafkaConsumer = createKafkaConsumerForTopic(request.groupId, request.topicName)
 
         kafkaConsumer.use { consumer ->
@@ -93,7 +104,7 @@ class KafkaAdminService(
         }
     }
 
-    fun setConsumerOffset(request: SetConsumerOffsetRequest) {
+    override fun setConsumerOffset(request: SetConsumerOffsetRequest) {
         val topicPartition = TopicPartition(request.topicName, request.topicPartition)
         val kafkaConsumer = createKafkaConsumerForTopic(request.groupId, request.topicName)
 
@@ -123,7 +134,7 @@ class KafkaAdminService(
         val keyDesType = topicConfig.keyDeserializerType
         val valueDesType = topicConfig.valueDeserializerType
 
-        val properties = createAivenConsumerProperties(keyDesType, valueDesType)
+        val properties = KafkaPropertiesFactory.createAivenConsumerProperties(keyDesType, valueDesType)
 
         if (consumerGroupId != null) {
             properties[ConsumerConfig.GROUP_ID_CONFIG] = consumerGroupId
@@ -147,7 +158,7 @@ class KafkaAdminService(
                 val keyMatches = it.key != null && insensitiveText(it.key).contains(filterText)
                 val valueMatches = it.value != null && insensitiveText(it.value).contains(filterText)
 
-                return@filter keyMatches || valueMatches
+                keyMatches || valueMatches
             }
         }
 
@@ -156,7 +167,56 @@ class KafkaAdminService(
                 .replace(" ", "")
                 .replace("\n", "")
         }
+    }
+}
 
+class KafkaAdminServiceMock(
+    private val appConfig: KafkaAppConfig
+) : KafkaAdminService {
+
+    override fun getAvailableTopics(): List<String> {
+        return appConfig.topics.map { it.name }
     }
 
+    override fun getApplications(): List<String> {
+        return appConfig.applications.map { it.name }
+    }
+
+    override fun readTopic(request: ReadTopicRequest): List<KafkaRecord> {
+        val partitionRange = if (request.topicAllPartitions) {
+            0..3
+        } else {
+            request.topicPartition..request.topicPartition
+        }
+
+        val offsetRange = request.fromOffset until (request.fromOffset + request.maxRecords)
+
+        return partitionRange.flatMap {  partition ->
+            offsetRange.map { offset ->
+                KafkaRecord(
+                    partition,
+                    "$partition-$offset",
+                    """{ "partition": $partition, "offset": $offset }""",
+                    emptyList(),
+                    Instant.now().millis,
+                    offset
+                )
+            }
+        }.let {
+            KafkaAdminServiceImpl.filterRecords(request.filter, it)
+        }
+    }
+
+    override fun getLastRecordOffset(request: GetLastRecordOffsetRequest): Long {
+        return request.topicPartition * 1000L
+    }
+
+    override fun getConsumerOffsets(request: GetConsumerOffsetsRequest): Map<TopicPartition, OffsetAndMetadata> {
+        return (0..3).map { partition->
+            TopicPartition(request.topicName, partition) to OffsetAndMetadata(partition * 1000L)
+        }.toMap()
+    }
+
+    override fun setConsumerOffset(request: SetConsumerOffsetRequest) {
+    }
 }

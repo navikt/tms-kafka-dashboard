@@ -32,6 +32,7 @@ dependencies {
     implementation(Ktor.Server.auth)
     implementation(Ktor.Server.contentNegotiation)
     implementation(Ktor.Server.core)
+    implementation(Ktor.Server.cors)
     implementation(Ktor.Server.htmlDsl)
     implementation(Ktor.Server.netty)
     implementation(Ktor.Server.statusPages)
@@ -39,6 +40,7 @@ dependencies {
     implementation(TmsCommonLib.utils)
     implementation(TmsCommonLib.metrics)
     implementation(TmsKtorTokenSupport.azureValidation)
+    implementation(TmsKtorTokenSupport.azureValidationMock)
 
     testImplementation(JunitPlatform.launcher)
     testImplementation(JunitJupiter.api)
