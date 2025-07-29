@@ -33,7 +33,6 @@ dependencies {
     implementation(Ktor.Server.contentNegotiation)
     implementation(Ktor.Server.core)
     implementation(Ktor.Server.cors)
-    implementation(Ktor.Server.htmlDsl)
     implementation(Ktor.Server.netty)
     implementation(Ktor.Server.statusPages)
     implementation(Ktor.Serialization.jackson)
