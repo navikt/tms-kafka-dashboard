@@ -18,8 +18,6 @@ import io.ktor.server.routing.*
 import no.nav.tms.common.metrics.installTmsApiMetrics
 import no.nav.tms.kafka.dashboard.api.adminRoutes
 import no.nav.tms.kafka.dashboard.api.KafkaAdminService
-import no.nav.tms.kafka.dashboard.web.index
-import no.nav.tms.token.support.azure.validation.azure
 import java.text.DateFormat
 
 fun Application.kafkaDashboard(
@@ -72,7 +70,6 @@ fun Application.kafkaDashboard(
         authenticate {
             adminRoutes(adminService)
         }
-        index(adminService)
         staticResources("/static", "static") {
             preCompressed(CompressedFileType.GZIP)
         }
