@@ -1,0 +1,16 @@
+.gradle
+.idea
+/out
+build
+buildSrc/out
+*.iml
+*.ipr
+*.iws
+.DS_Store
+
+target/
+bash.exe.stackdump
+
+web-app/node_modules
+
+web-app/dist
