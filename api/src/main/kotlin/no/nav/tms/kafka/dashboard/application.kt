@@ -8,6 +8,7 @@ import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import no.nav.tms.common.util.config.BooleanEnvVar
 import no.nav.tms.common.util.config.StringEnvVar
+import no.nav.tms.kafka.dashboard.api.KafkaAdminService
 import no.nav.tms.kafka.dashboard.api.KafkaAdminServiceImpl
 import no.nav.tms.kafka.dashboard.api.KafkaAdminServiceMock
 import no.nav.tms.token.support.azure.validation.azure
@@ -15,27 +16,25 @@ import no.nav.tms.token.support.azure.validation.mock.azureMock
 
 fun main() {
 
-    val localDevMode = BooleanEnvVar.getEnvVarAsBoolean("LOCAL_DEV_MODE", false)
+    val adminService: KafkaAdminService
+    val webAppLocation: String
+    val authFunction: Application.() -> Unit
 
-    val adminService = if(localDevMode) {
-        KafkaAdminServiceMock(
-            appConfig = getKafkaConfig()
-        )
-    } else {
-        KafkaAdminServiceImpl(
-            appConfig = getKafkaConfig()
-        )
-    }
-
-    val authFunction: Application.() -> Unit = {
-        if (localDevMode) {
+    if(BooleanEnvVar.getEnvVarAsBoolean("LOCAL_DEV_MODE", false)) {
+        adminService = KafkaAdminServiceMock(appConfig = getKafkaConfig())
+        webAppLocation = "web-app/dist"
+        authFunction = {
             authentication {
                 azureMock {
                     alwaysAuthenticated = true
                     setAsDefault = true
                 }
             }
-        } else {
+        }
+    } else {
+        adminService = KafkaAdminServiceImpl(appConfig = getKafkaConfig())
+        webAppLocation = "app/public"
+        authFunction = {
             authentication {
                 azure {
                     setAsDefault = true
@@ -47,7 +46,7 @@ fun main() {
     embeddedServer(
         factory = Netty,
         module = {
-            kafkaDashboard(adminService, authFunction)
+            kafkaDashboard(adminService, webAppLocation, authFunction)
         },
         configure = {
             connector {

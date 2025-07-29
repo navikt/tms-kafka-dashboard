@@ -18,10 +18,12 @@ import io.ktor.server.routing.*
 import no.nav.tms.common.metrics.installTmsApiMetrics
 import no.nav.tms.kafka.dashboard.api.adminRoutes
 import no.nav.tms.kafka.dashboard.api.KafkaAdminService
+import java.io.File
 import java.text.DateFormat
 
 fun Application.kafkaDashboard(
     adminService: KafkaAdminService,
+    webAppLocation: String,
     installAuthenticatorsFunction: Application.() -> Unit
 ) {
 
@@ -70,15 +72,16 @@ fun Application.kafkaDashboard(
         authenticate {
             adminRoutes(adminService)
         }
-        staticResources("/static", "static") {
-            preCompressed(CompressedFileType.GZIP)
-        }
         get("/internal/isAlive") {
             call.respondText(text = "ALIVE", contentType = ContentType.Text.Plain)
         }
 
         get("/internal/isReady") {
             call.respondText(text = "READY", contentType = ContentType.Text.Plain)
+        }
+
+        staticFiles("/", File(webAppLocation)) {
+            preCompressed(CompressedFileType.GZIP)
         }
     }
 }
