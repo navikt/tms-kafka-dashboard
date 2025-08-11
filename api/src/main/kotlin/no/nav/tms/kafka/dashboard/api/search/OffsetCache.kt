@@ -37,7 +37,7 @@ class OffsetCache(
 
         return database.singleOrNull {
             queryOf(
-                "select recordPartition, recordOffset from offset_cache where id = :key and topicId = :topicId order by createdAt limit 1",
+                "select recordPartition, recordOffset from offset_cache where key = :key and topicId = :topicId order by createdAt limit 1",
                 mapOf(
                     "topicId" to topicId(topicName),
                     "key" to key
@@ -130,14 +130,14 @@ class OffsetCache(
         val topicId = topicId(topic)
 
         val entries = records.map { record ->
-            val id = when(val key = record.key) {
-                is String -> key
+            val recordKey = when(record.key) {
+                is String -> record.key
                 else -> null
             }
 
             CacheEntry(
                 topicId = topicId,
-                id = id,
+                key = recordKey,
                 partition = record.partition,
                 offset = record.offset,
                 createdAt = record.timestamp
@@ -213,7 +213,7 @@ class OffsetCache(
         database.insert { queryOf("""
             insert into offset_cache(
                 topicId,
-                id, 
+                recordKey, 
                 recordPartition,
                 recordOffset,
                 createdAt
@@ -227,7 +227,7 @@ class OffsetCache(
         """,
             mapOf(
                 "topicId" to entry.topicId,
-                "id" to entry.id,
+                "recordKey" to entry.key,
                 "partition" to entry.partition,
                 "offset" to entry.offset,
                 "createdAt" to entry.createdAt
@@ -241,7 +241,7 @@ class OffsetCache(
 
     private data class CacheEntry(
         val topicId: Int,
-        val id: String?,
+        val key: String?,
         val partition: Int,
         val offset: Long,
         val createdAt: ZonedDateTime
