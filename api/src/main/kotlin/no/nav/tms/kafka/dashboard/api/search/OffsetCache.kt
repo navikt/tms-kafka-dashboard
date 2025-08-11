@@ -154,7 +154,7 @@ class OffsetCache(
     private fun lastCachedOffset(topicName: String, partition: Int): Long? {
         return database.singleOrNull {
             queryOf(
-                "select offset from last_cached_offset where topicId = :topicId and partition = :partition",
+                "select lastOffset from last_cached_offset where topicId = :topicId and partition = :partition",
                 mapOf(
                     "topicId" to topicId(topicName),
                     "partition" to partition
