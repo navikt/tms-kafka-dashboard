@@ -36,6 +36,12 @@ jobs:
       - name: Bygg prosjekt
         run: ./gradlew assemble
 
+      - name: Installer npm dependencies
+        run: npm ci --legacy-peer-deps --prefix web-app
+
+      - name: Bygg frontend-filer
+        run: npm run build --prefix web-app
+
       - name: Build og push docker-image
         uses: nais/docker-build-push@v0
         id: docker-build-push
