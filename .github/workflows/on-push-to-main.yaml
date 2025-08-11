@@ -37,6 +37,13 @@ jobs:
         with:
           dependency-graph: generate-and-submit
 
+      - name: Setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: 'npm'
+          cache-dependency-path: 'web-app/package-lock.json'
+
       - name: Bygg prosjekt og kjør tester
         run: ./gradlew build
 
