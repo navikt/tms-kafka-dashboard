@@ -125,7 +125,11 @@ class OffsetCache(
 
     private fun fill(topic: String, records: List<KafkaRecord>) {
 
-        require(records.map { it.partition }.distinct().size <= 1) { "Må fylle opp én partisjon om gangen." }
+        if (records.isEmpty()) {
+            return
+        }
+
+        require(records.map { it.partition }.distinct().size == 1) { "Må fylle opp én partisjon om gangen." }
 
         val topicId = topicId(topic)
 
