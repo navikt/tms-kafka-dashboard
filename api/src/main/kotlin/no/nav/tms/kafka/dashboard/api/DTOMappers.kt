@@ -4,6 +4,10 @@ import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.clients.consumer.OffsetAndMetadata
 import org.apache.kafka.common.TopicPartition
 import org.apache.kafka.common.header.Header
+import org.apache.kafka.common.record.TimestampType
+import java.time.Instant
+import java.time.ZoneId
+import java.time.ZonedDateTime
 
 object DTOMappers {
 
@@ -20,7 +24,7 @@ object DTOMappers {
             partition = consumerRecord.partition(),
             key = consumerRecord.key(),
             value = consumerRecord.value(),
-            timestamp = consumerRecord.timestamp(),
+            timestamp = consumerRecord.timestampZ(),
             headers = consumerRecord.headers().map { toRecordHeader(it) },
             offset = consumerRecord.offset()
         )
@@ -31,5 +35,14 @@ object DTOMappers {
             name = header.key(),
             value = String(header.value())
         )
+    }
+
+
+
+    private fun ConsumerRecord<*, *>.timestampZ(): ZonedDateTime = when (timestampType()) {
+        TimestampType.LOG_APPEND_TIME, TimestampType.CREATE_TIME -> {
+            Instant.ofEpochMilli(timestamp()).let { ZonedDateTime.ofInstant(it, ZoneId.of("Z")) }
+        }
+        else -> throw IllegalArgumentException("Fant ikke timestamp for record")
     }
 }

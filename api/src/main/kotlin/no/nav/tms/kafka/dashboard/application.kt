@@ -8,9 +8,12 @@ import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import no.nav.tms.common.util.config.BooleanEnvVar
 import no.nav.tms.common.util.config.StringEnvVar
+import no.nav.tms.kafka.dashboard.api.CachingKafkaAdminService
 import no.nav.tms.kafka.dashboard.api.KafkaAdminService
-import no.nav.tms.kafka.dashboard.api.KafkaAdminServiceImpl
 import no.nav.tms.kafka.dashboard.api.KafkaAdminServiceMock
+import no.nav.tms.kafka.dashboard.api.KafkaReader
+import no.nav.tms.kafka.dashboard.api.database.HsqlDatabase
+import no.nav.tms.kafka.dashboard.api.search.OffsetCache
 import no.nav.tms.token.support.azure.validation.azure
 import no.nav.tms.token.support.azure.validation.mock.azureMock
 
@@ -20,8 +23,10 @@ fun main() {
     val webAppLocation: String
     val authFunction: Application.() -> Unit
 
+    val database = HsqlDatabase()
+
     if(BooleanEnvVar.getEnvVarAsBoolean("LOCAL_DEV_MODE", false)) {
-        adminService = KafkaAdminServiceMock(appConfig = getKafkaConfig())
+        adminService = KafkaAdminServiceMock(getKafkaConfig())
         webAppLocation = "web-app/dist"
         authFunction = {
             authentication {
@@ -32,7 +37,14 @@ fun main() {
             }
         }
     } else {
-        adminService = KafkaAdminServiceImpl(appConfig = getKafkaConfig())
+        val kafkaReader = KafkaReader(getKafkaConfig())
+        val offsetCache = OffsetCache(database, kafkaReader)
+
+
+        adminService = CachingKafkaAdminService(
+            kafkaReader = kafkaReader,
+            offsetCache = offsetCache
+        )
         webAppLocation = "app/public"
         authFunction = {
             authentication {
@@ -47,6 +59,11 @@ fun main() {
         factory = Netty,
         module = {
             kafkaDashboard(adminService, webAppLocation, authFunction)
+
+            monitor.subscribe(ApplicationStarted) {
+                database.runFlywayMigrations()
+                adminService.initCache()
+            }
         },
         configure = {
             connector {
