@@ -177,15 +177,15 @@ class OffsetCache(
             queryOf(
                 """
                       merge into last_cached_offset as lco
-                        using (values :topicId, :partition, :offset) tmp (topicId, partition, offset) 
+                        using (values :topicId, :partition, :lastOffset) tmp (topicId, partition, lastOffset) 
                       on (lco.topicId = tmp.topicId and lco.partition = tmp.partition)
-                        when matched then update set lco.offset = tmp.offset
-                        when not matched then insert (topicId, partition, offset) values (tmp.topicId, tmp.partition, tmp.offset)
+                        when matched then update set lco.lastOffset = tmp.lastOffset
+                        when not matched then insert (topicId, partition, lastOffset) values (tmp.topicId, tmp.partition, tmp.lastOffset)
                 """,
                 mapOf(
                     "topicId" to topicId,
                     "partition" to partition,
-                    "offset" to offset
+                    "lastOffset" to offset
                 )
             )
         }

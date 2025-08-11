@@ -6,7 +6,7 @@ create table topic (
 CREATE TABLE offset_cache
 (
     topicId integer not null,
-    key varchar(100),
+    recordKey varchar(100),
     recordPartition smallint not null,
     recordOffset bigint not null,
     createdAt timestamp with time zone not null,
@@ -16,9 +16,9 @@ CREATE TABLE offset_cache
 create table last_cached_offset(
     topicId integer not null,
     partition smallint not null,
-    offset bigint not null,
+    lastOffset bigint not null,
     foreign key (topicId) references topic(id)
 );
 
-create index offset_cache_key on offset_cache(key);
+create index offset_cache_key on offset_cache(recordKey);
 create index offset_cache_created_at on offset_cache(createdAt);
