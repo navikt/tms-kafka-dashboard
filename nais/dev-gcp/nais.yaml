@@ -46,39 +46,39 @@ spec:
         {
           "topics": [
             {
-              "name": "min-side.aapen-brukernotifikasjon-beskjed-v1",
+              "topicName": "min-side.aapen-brukernotifikasjon-beskjed-v1",
               "keyDeserializerType": "AVRO",
               "valueDeserializerType": "AVRO"
             },
             {
-              "name": "min-side.aapen-brukernotifikasjon-innboks-v1",
+              "topicName": "min-side.aapen-brukernotifikasjon-innboks-v1",
               "keyDeserializerType": "AVRO",
               "valueDeserializerType": "AVRO"
             },
             {
-              "name": "min-side.aapen-brukernotifikasjon-oppgave-v1",
+              "topicName": "min-side.aapen-brukernotifikasjon-oppgave-v1",
               "keyDeserializerType": "AVRO",
               "valueDeserializerType": "AVRO"
             },
             {
-              "name": "min-side.aapen-brukernotifikasjon-done-v1",
+              "topicName": "min-side.aapen-brukernotifikasjon-done-v1",
               "keyDeserializerType": "AVRO",
               "valueDeserializerType": "AVRO"
             },
             {
-              "name": "min-side.brukervarsel-v1"
+              "topicName": "min-side.brukervarsel-v1"
             },
             {
-              "name": "min-side.aapen-utkast-v1"
+              "topicName": "min-side.aapen-utkast-v1"
             },
             {
-              "name": "min-side.aapen-varsel-hendelse-v1"
+              "topicName": "min-side.aapen-varsel-hendelse-v1"
             },
             {
-              "name": "min-side.aapen-microfrontend-v1"
+              "topicName": "min-side.aapen-microfrontend-v1"
             },
             {
-              "name": "min-side.aapen-brukervarsel-v1"
+              "topicName": "min-side.aapen-brukervarsel-v1"
             }
           ],
           "applications": [
