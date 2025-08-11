@@ -164,7 +164,7 @@ class OffsetCache(
                     "partition" to partition
                 )
             ).map {
-                it.long("offset")
+                it.long("lastOffset")
             }.asSingle
         }
     }
