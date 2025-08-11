@@ -20,12 +20,11 @@ class OffsetCache(
 
     private val log = KotlinLogging.logger {}
 
-    private val topics: List<TopicInfo> = readTopicInfo()
-    private val topicIds: Map<String, Int> = insertTopics(topics)
+    private lateinit var topics: List<TopicInfo>
+    private lateinit var topicIds: Map<String, Int>
 
     private val isUpdating = AtomicBoolean(false)
     private val isReady = AtomicBoolean(false)
-
 
     fun findFirstPartitionOffset(topicName: String, key: String): PartitionOffset? {
         if (!isReady.get()) {
@@ -38,8 +37,11 @@ class OffsetCache(
 
         return database.singleOrNull {
             queryOf(
-                "select recordPartition, recordOffset from offset_cache where id = :topicId order by createdAt limit 1",
-                mapOf("topicId" to topicId(topicName))
+                "select recordPartition, recordOffset from offset_cache where id = :key and topicId = :topicId order by createdAt limit 1",
+                mapOf(
+                    "topicId" to topicId(topicName),
+                    "key" to key
+                )
             ).map {
                 PartitionOffset(
                     partition = it.int("recordPartition"),
@@ -47,6 +49,11 @@ class OffsetCache(
                 )
             }.asSingle
         }
+    }
+
+    fun initTopicInfo() {
+        readTopicInfo()
+        insertTopics(topics)
     }
 
     override val job = initializeJob {

@@ -1,6 +1,5 @@
 package no.nav.tms.kafka.dashboard.api
 
-import com.squareup.wire.internal.boxedOneOfKeysFieldName
 import no.nav.tms.kafka.dashboard.api.search.GuidHelper
 import no.nav.tms.kafka.dashboard.api.search.OffsetCache
 import org.apache.kafka.clients.consumer.OffsetAndMetadata
@@ -76,6 +75,7 @@ class CachingKafkaAdminService(
     }
 
     override fun initCache() {
+        offsetCache.initTopicInfo()
         offsetCache.start()
     }
 
