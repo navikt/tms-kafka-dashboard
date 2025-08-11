@@ -114,7 +114,7 @@ class OffsetCache(
         partition: Int,
         batchSize: Int
     ): Int {
-        val start = lastCachedOffset(topicName, partition)
+        val start = lastCachedOffset(topicName, partition) ?: 0L
 
         val records = kafkaReader.readFromPartition(topicName, partition, start, batchSize)
 
@@ -151,8 +151,8 @@ class OffsetCache(
         }
     }
 
-    private fun lastCachedOffset(topicName: String, partition: Int): Long {
-        return database.single {
+    private fun lastCachedOffset(topicName: String, partition: Int): Long? {
+        return database.singleOrNull {
             queryOf(
                 "select offset from last_cached_offset where topicId = :topicId and partition = :partition",
                 mapOf(
