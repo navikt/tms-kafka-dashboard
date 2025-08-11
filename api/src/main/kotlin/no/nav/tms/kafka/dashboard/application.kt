@@ -2,6 +2,7 @@ package no.nav.tms.kafka.dashboard
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
+import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.engine.*
@@ -39,7 +40,6 @@ fun main() {
     } else {
         val kafkaReader = KafkaReader(getKafkaConfig())
         val offsetCache = OffsetCache(database, kafkaReader)
-
 
         adminService = CachingKafkaAdminService(
             kafkaReader = kafkaReader,

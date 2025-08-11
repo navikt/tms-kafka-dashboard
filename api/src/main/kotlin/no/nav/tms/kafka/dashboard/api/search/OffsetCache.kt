@@ -52,8 +52,18 @@ class OffsetCache(
     }
 
     fun initTopicInfo() {
-        readTopicInfo()
-        insertTopics(topics)
+        topics = kafkaReader.appConfig.topics.map { config ->
+            val partitions = kafkaReader.getPartitions(config.topicName)
+                .map { it.partition() }
+
+            TopicInfo(config.topicName, partitions)
+        }
+
+         topicIds = topics.associate { topic ->
+            topic.topicName to insertTopic(topic.topicName)
+        }
+
+        log.info { "Initialized ${topics.size} topics" }
     }
 
     override val job = initializeJob {
@@ -111,21 +121,6 @@ class OffsetCache(
         fill(topicName, records)
 
         return records.size
-    }
-
-    private fun readTopicInfo(): List<TopicInfo> {
-        return kafkaReader.appConfig.topics.map {
-            val partitions = kafkaReader.getPartitions(it.topicName)
-                .map { it.partition() }
-
-            TopicInfo(it.topicName, partitions)
-        }
-    }
-
-    private fun insertTopics(topicInfo: List<TopicInfo>): Map<String, Int> {
-        return topicInfo.associate { topic ->
-            topic.topicName to insertTopic(topic.topicName)
-        }
     }
 
     private fun fill(topic: String, records: List<KafkaRecord>) {
