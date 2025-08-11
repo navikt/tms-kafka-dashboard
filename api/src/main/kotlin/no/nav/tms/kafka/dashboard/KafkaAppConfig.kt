@@ -7,7 +7,7 @@ data class KafkaAppConfig (
     init {
         val appsWithUnknownTopics = applications.filter { app ->
             app.topics.any { topic ->
-                topics.map { it.name }.contains(topic).not()
+                topics.map { it.topicName }.contains(topic).not()
             }
         }
 
@@ -19,7 +19,7 @@ data class KafkaAppConfig (
 }
 
 data class TopicConfig(
-    val name: String,
+    val topicName: String,
     val keyDeserializerType: DeserializerType = DeserializerType.STRING,
     val valueDeserializerType: DeserializerType = DeserializerType.STRING
 )

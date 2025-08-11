@@ -27,8 +27,13 @@ repositories {
 dependencies {
     implementation(Avro.avroSerializer)
     implementation(Avro.schemaRegistry)
+    implementation(FlywayHsql.core)
+    implementation(FlywayHsql.hsqldb)
+    implementation(Hikari.cp)
+    implementation(Hsql.hsqldb)
     implementation(Kafka.clients)
     implementation(KotlinLogging.logging)
+    implementation(KotliQuery.kotliquery)
     implementation(Ktor.Server.auth)
     implementation(Ktor.Server.contentNegotiation)
     implementation(Ktor.Server.core)
@@ -44,6 +49,9 @@ dependencies {
 
     testImplementation(JunitPlatform.launcher)
     testImplementation(JunitJupiter.api)
+    testImplementation(JunitJupiter.engine)
+    testImplementation(Kotest.runnerJunit5)
+    testImplementation(Kotest.assertionsCore)
 }
 
 application {
