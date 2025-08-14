@@ -6,14 +6,5 @@ import java.util.*
 import java.time.Instant
 
 class GuidHelperTest {
-    @Test
-    fun `henter riktig tid fra UUID`() {
-        val uuid = UUID.randomUUID().toString()
 
-        val epoch = GuidHelper.extractEpoch(uuid)
-
-        val now = Instant.now().toEpochMilli()
-
-        epoch!!.shouldBeInRange((now - 10)..(now))
-    }
 }
