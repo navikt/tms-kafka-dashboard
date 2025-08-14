@@ -25,8 +25,6 @@ repositories {
 }
 
 dependencies {
-    implementation(Avro.avroSerializer)
-    implementation(Avro.schemaRegistry)
     implementation(FlywayHsql.core)
     implementation(FlywayHsql.hsqldb)
     implementation(Hikari.cp)

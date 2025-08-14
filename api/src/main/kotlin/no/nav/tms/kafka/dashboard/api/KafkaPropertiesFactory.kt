@@ -1,7 +1,5 @@
 package no.nav.tms.kafka.dashboard.api
 
-import io.confluent.kafka.serializers.KafkaAvroDeserializer
-import io.confluent.kafka.serializers.KafkaAvroSerializerConfig
 import no.nav.tms.common.util.config.StringEnvVar
 import no.nav.tms.kafka.dashboard.DeserializerType
 import org.apache.kafka.clients.CommonClientConfigs
@@ -26,10 +24,6 @@ object KafkaPropertiesFactory {
 
         configureBrokers(environment)
         configureSecurity(environment)
-
-        if (keyDeserializerType == DeserializerType.AVRO || valueDeserializerType == DeserializerType.AVRO) {
-            configureAvro(environment)
-        }
 
         put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, MAX_KAFKA_RECORDS)
         put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false")
@@ -61,16 +55,6 @@ object KafkaPropertiesFactory {
         put(SslConfigs.SSL_KEYSTORE_PASSWORD_CONFIG, env.getValue("KAFKA_CREDSTORE_PASSWORD"))
     }
 
-    private fun Properties.configureAvro(env: Map<String, String>) {
-        val schemaRegistryUrl = StringEnvVar.getEnvVar(KAFKA_SCHEMA_REGISTRY)
-        val schemaRegistryUsername = StringEnvVar.getEnvVar(KAFKA_SCHEMA_REGISTRY_USER)
-        val schemaRegistryPassword = StringEnvVar.getEnvVar(KAFKA_SCHEMA_REGISTRY_PASSWORD)
-
-        put(KafkaAvroSerializerConfig.SCHEMA_REGISTRY_URL_CONFIG, schemaRegistryUrl)
-        put(KafkaAvroSerializerConfig.BASIC_AUTH_CREDENTIALS_SOURCE, "USER_INFO")
-        put(KafkaAvroSerializerConfig.USER_INFO_CONFIG, "$schemaRegistryUsername:$schemaRegistryPassword")
-    }
-
     private fun findDeserializer(deserializerType: DeserializerType): Class<*> {
         return when (deserializerType) {
             DeserializerType.STRING -> StringDeserializer::class.java
@@ -80,7 +64,6 @@ object KafkaPropertiesFactory {
             DeserializerType.LONG -> LongDeserializer::class.java
             DeserializerType.SHORT -> ShortDeserializer::class.java
             DeserializerType.UUID -> UUIDDeserializer::class.java
-            DeserializerType.AVRO -> KafkaAvroDeserializer::class.java
         }
     }
 

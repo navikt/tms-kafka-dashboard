@@ -1,7 +1,6 @@
 package no.nav.tms.kafka.dashboard.api
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import org.apache.avro.generic.GenericRecord
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import java.util.*
 
@@ -34,16 +33,7 @@ object ConsumerRecordMapper {
             is Long -> keyOrValue.toString()
             is Short -> keyOrValue.toString()
             is UUID -> keyOrValue.toString()
-            is GenericRecord -> objectmapper.writeValueAsString(getRecordKeyValues(keyOrValue))
             else -> keyOrValue.toString()
         }
     }
-
-    private fun getRecordKeyValues(genericRecord: GenericRecord): Map<String, String> {
-        return genericRecord.schema.fields.fold(emptyMap()) { m, field ->
-            val v = genericRecord[field.name()]?.toString() ?: ""
-            m + (field.name() to v)
-        }
-    }
-
 }

@@ -46,26 +46,6 @@ spec:
         {
           "topics": [
             {
-              "topicName": "min-side.aapen-brukernotifikasjon-beskjed-v1",
-              "keyDeserializerType": "AVRO",
-              "valueDeserializerType": "AVRO"
-            },
-            {
-              "topicName": "min-side.aapen-brukernotifikasjon-innboks-v1",
-              "keyDeserializerType": "AVRO",
-              "valueDeserializerType": "AVRO"
-            },
-            {
-              "topicName": "min-side.aapen-brukernotifikasjon-oppgave-v1",
-              "keyDeserializerType": "AVRO",
-              "valueDeserializerType": "AVRO"
-            },
-            {
-              "topicName": "min-side.aapen-brukernotifikasjon-done-v1",
-              "keyDeserializerType": "AVRO",
-              "valueDeserializerType": "AVRO"
-            },
-            {
               "topicName": "min-side.brukervarsel-v1"
             },
             {
