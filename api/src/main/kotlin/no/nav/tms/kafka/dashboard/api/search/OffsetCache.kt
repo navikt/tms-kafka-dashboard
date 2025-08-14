@@ -105,6 +105,8 @@ class OffsetCache(
             }
         }
 
+        log.info { "Cache fill complete." }
+
         isUpdating.set(false)
         isReady.set(true)
     }
