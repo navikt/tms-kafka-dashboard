@@ -29,4 +29,5 @@
 <!--    </logger>-->
 
     <logger name="org.apache.kafka" level="ERROR" />
+    <logger name="io.confluent.kafka" level="ERROR" />
 </configuration>

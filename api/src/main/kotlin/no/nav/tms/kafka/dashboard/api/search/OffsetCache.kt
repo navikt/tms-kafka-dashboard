@@ -222,6 +222,7 @@ class OffsetCache(
             ) values (
                 :topicId,
                 :id,
+                :recordKey,
                 :partition,
                 :offset,
                 :createdAt
