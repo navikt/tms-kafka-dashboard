@@ -44,7 +44,6 @@ fun Application.kafkaDashboard(
     }
 
     install(CORS) {
-        allowSameOrigin = true
         allowCredentials = true
     }
 
