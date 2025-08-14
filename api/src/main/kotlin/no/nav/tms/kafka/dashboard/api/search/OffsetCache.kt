@@ -70,9 +70,9 @@ class OffsetCache(
         isUpdating.set(true)
 
         if (isReady.get()) {
-            log.info { "Initializing offset cache" }
-        } else {
             log.info { "Updating offset cache" }
+        } else {
+            log.info { "Initializing offset cache" }
         }
 
         ejectEntriesBefore(ZonedDateTime.now() - retention)
@@ -136,14 +136,10 @@ class OffsetCache(
         val topicId = topicId(topic)
 
         val entries = records.map { record ->
-            val recordKey = when(record.key) {
-                is String -> record.key
-                else -> null
-            }
 
             CacheEntry(
                 topicId = topicId,
-                key = recordKey,
+                key = record.key,
                 partition = record.partition,
                 offset = record.offset,
                 createdAt = record.timestamp
