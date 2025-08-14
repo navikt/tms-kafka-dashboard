@@ -44,8 +44,10 @@ fun Application.kafkaDashboard(
     }
 
     install(CORS) {
+        allowOrigins {
+            "https://tms-kafka-dashboard\\.intern(\\.dev)?\\.nav\\.no".toRegex().matches(it)
+        }
         allowCredentials = true
-        anyHost()
     }
 
     install(StatusPages) {
