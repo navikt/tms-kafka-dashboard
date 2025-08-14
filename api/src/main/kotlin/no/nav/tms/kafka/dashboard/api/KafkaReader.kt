@@ -21,6 +21,8 @@ class KafkaReader(val appConfig: KafkaAppConfig) {
         val kafkaConsumer = createKafkaConsumerForTopic(null, topicName)
         val kafkaRecords = mutableListOf<KafkaRecord>()
 
+        val config = appConfig.config(topicName)
+
         kafkaConsumer.use { consumer ->
             val topicPartition = TopicPartition(topicName, partition)
 
@@ -55,6 +57,8 @@ class KafkaReader(val appConfig: KafkaAppConfig) {
 
         val kafkaConsumer = createKafkaConsumerForTopic(null, topicName)
         val kafkaRecords = mutableListOf<KafkaRecord>()
+
+        val config = appConfig.config(topicName)
 
         kafkaConsumer.use { consumer ->
             val topicPartitions = consumer.partitionsFor(topicName)
