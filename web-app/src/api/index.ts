@@ -1,8 +1,7 @@
 import axios, { AxiosPromise } from 'axios';
 
 export const axiosInstance = axios.create({
-	withCredentials: true,
-	headers: { 'Nav-Consumer-Id': 'kafka-manager' }
+	withCredentials: true
 });
 
 export interface User {
