@@ -45,7 +45,7 @@ fun main() {
             kafkaReader = kafkaReader,
             offsetCache = offsetCache
         )
-        webAppLocation = "app/public"
+        webAppLocation = "public"
         authFunction = {
             authentication {
                 azure {

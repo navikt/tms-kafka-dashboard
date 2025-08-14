@@ -28,9 +28,5 @@
 <!--        <appender-ref ref="secureLog"/>-->
 <!--    </logger>-->
 
-    <logger name="kafka-org" level ="WARN" />
-    <logger name="kafka" level ="WARN" />
-    <logger name="kafka-state" level ="WARN" />
-    <logger name="zookeeper" level ="WARN" />
-    <logger name="curator" level ="WARN" />
+    <logger name="org.apache.kafka" level="ERROR" />
 </configuration>
