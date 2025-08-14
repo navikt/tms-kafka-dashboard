@@ -44,7 +44,9 @@ fun Application.kafkaDashboard(
     }
 
     install(CORS) {
-        anyHost()
+        allowOrigins {
+            "https://tms-kafka-dashboard\\.intern(\\.dev)?\\.nav\\.no".toRegex().matches(it)
+        }
         allowCredentials = true
     }
 
