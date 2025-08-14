@@ -26,7 +26,7 @@ class OffsetCache(
     private val isUpdating = AtomicBoolean(false)
     private val isReady = AtomicBoolean(false)
 
-    fun findFirstPartitionOffset(topicName: String, key: String): PartitionOffset? {
+    fun findFirstPartitionOffset(topicName: String, recordKey: String): PartitionOffset? {
         if (!isReady.get()) {
             return null
         }
@@ -37,10 +37,10 @@ class OffsetCache(
 
         return database.singleOrNull {
             queryOf(
-                "select recordPartition, recordOffset from offset_cache where key = :key and topicId = :topicId order by createdAt limit 1",
+                "select recordPartition, recordOffset from offset_cache where recordKey = :recordKey and topicId = :topicId order by createdAt limit 1",
                 mapOf(
                     "topicId" to topicId(topicName),
-                    "key" to key
+                    "recordKey" to recordKey
                 )
             ).map {
                 PartitionOffset(
