@@ -35,13 +35,15 @@ class KafkaAdminServiceMock(
     }
 
     override fun readTopic(request: ReadTopicRequest): List<KafkaRecord> {
-        val partitionRange = if (request.topicAllPartitions) {
+        val partitionRange = if (request.topicPartition == null) {
             0..3
         } else {
             request.topicPartition..request.topicPartition
         }
 
-        val offsetRange = request.fromOffset until (request.fromOffset + request.maxRecords)
+        val fromOffset = request.fromOffset ?: 0
+
+        val offsetRange = fromOffset until (fromOffset + request.maxRecords)
 
         return partitionRange.flatMap {  partition ->
             offsetRange.map { offset ->

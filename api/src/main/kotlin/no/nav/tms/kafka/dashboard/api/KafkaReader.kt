@@ -1,16 +1,20 @@
 package no.nav.tms.kafka.dashboard.api
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import no.nav.tms.kafka.dashboard.KafkaAppConfig
 import no.nav.tms.kafka.dashboard.TopicConfig
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.apache.kafka.clients.consumer.OffsetAndMetadata
 import org.apache.kafka.common.TopicPartition
+import org.slf4j.LoggerFactory
 import java.time.Duration
 import java.time.ZonedDateTime
 import java.util.*
 
 class KafkaReader(val appConfig: KafkaAppConfig) {
+
+    private val log = KotlinLogging.logger { }
 
     fun readFromPartition(
         topicName: String,
@@ -18,10 +22,12 @@ class KafkaReader(val appConfig: KafkaAppConfig) {
         offset: Long,
         maxRecords: Int
     ): List<KafkaRecord> {
+        if (maxRecords < 1) {
+            return emptyList()
+        }
+
         val kafkaConsumer = createKafkaConsumerForTopic(null, topicName)
         val kafkaRecords = mutableListOf<KafkaRecord>()
-
-        val config = appConfig.config(topicName)
 
         kafkaConsumer.use { consumer ->
             val topicPartition = TopicPartition(topicName, partition)
@@ -30,7 +36,7 @@ class KafkaReader(val appConfig: KafkaAppConfig) {
             consumer.seek(topicPartition, offset)
 
             while (kafkaRecords.size < maxRecords) {
-                val consumerRecords = consumer.poll(Duration.ofSeconds(1))
+                val consumerRecords = consumer.poll(Duration.ofMillis(100))
 
                 // No more records to consume right now
                 if (consumerRecords.isEmpty) {
@@ -45,60 +51,9 @@ class KafkaReader(val appConfig: KafkaAppConfig) {
                 }
             }
 
+            log.info { "Read ${kafkaRecords.size} records for search {topicName: $topicName, partition: $partition, offset: $offset, maxRecords: $maxRecords}" }
+
             return kafkaRecords.take(maxRecords)
-        }
-    }
-
-    fun readFromAllPartitions(
-        topicName: String,
-        maxRecords: Int,
-        offsets: Map<Int, Long>
-    ): List<KafkaRecord> {
-
-        val kafkaConsumer = createKafkaConsumerForTopic(null, topicName)
-        val kafkaRecords = mutableListOf<KafkaRecord>()
-
-        val config = appConfig.config(topicName)
-
-        kafkaConsumer.use { consumer ->
-            val topicPartitions = consumer.partitionsFor(topicName)
-                .map { TopicPartition(it.topic(), it.partition()) }
-
-            consumer.assign(topicPartitions)
-
-            topicPartitions.forEach {
-                consumer.seek(it, offsets[it.partition()] ?: 0)
-            }
-
-            val recordsPerPartition = topicPartitions.associate {
-                it.partition() to 0
-            }.toMutableMap()
-
-            val maxRecordsPerPartition = maxRecords / topicPartitions.size
-
-            while (kafkaRecords.size < maxRecords) {
-                val consumerRecords = consumer.poll(Duration.ofSeconds(1))
-
-                // No more records to consume right now
-                if (consumerRecords.isEmpty) {
-                    break
-                }
-
-                consumerRecords.records(topicName).map {
-                    val stringRecord = ConsumerRecordMapper.mapConsumerRecord(it)
-                    DTOMappers.toKafkaRecordHeader(stringRecord)
-                }.forEach { record ->
-
-                    if (recordsPerPartition[record.partition]!! < maxRecordsPerPartition) {
-                        kafkaRecords.add(record)
-                        recordsPerPartition.computeIfPresent(record.partition) { _, count ->
-                            count + 1
-                        }
-                    }
-                }
-            }
-
-            return kafkaRecords
         }
     }
 

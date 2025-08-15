@@ -15,10 +15,10 @@ export function me(): AxiosPromise<User> {
 
 export interface ReadFromTopicRequest {
 	topicName: string;
-	topicAllPartitions: boolean,
-	topicPartition: number;
+	readFromPosition: string;
 	maxRecords: number;
-	fromOffset: number;
+	topicPartition: number | null;
+	fromOffset: number | null;
 	filterText?: string;
 }
 
@@ -66,7 +66,7 @@ export function readFromTopic(request: ReadFromTopicRequest): AxiosPromise<Kafka
 	return axiosInstance.post(`/api/kafka/read-topic`, {
 		topicName: request.topicName,
 		topicPartition: request.topicPartition,
-		topicAllPartitions: request.topicAllPartitions,
+		readFromPosition: request.readFromPosition,
 		maxRecords: request.maxRecords,
 		fromOffset: request.fromOffset,
 		filter: {

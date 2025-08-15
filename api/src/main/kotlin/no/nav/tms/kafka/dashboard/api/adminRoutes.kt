@@ -1,5 +1,6 @@
 package no.nav.tms.kafka.dashboard.api
 
+import com.fasterxml.jackson.annotation.JsonAlias
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -56,12 +57,18 @@ const val MAX_KAFKA_RECORDS = 100
 
 data class ReadTopicRequest(
     val topicName: String,
-    val topicAllPartitions: Boolean,
-    val topicPartition: Int,
+    val readFromPosition: ReadFrom,
+    val topicPartition: Int?,
     val maxRecords: Int,
-    val fromOffset: Long,
-    val filter: RecordFilter?
+    val fromOffset: Long?,
+    @JsonAlias("filter") private val _filter: RecordFilter?
 ) {
+    val filter = if (_filter != null && !_filter.text.isNullOrBlank()) {
+        _filter
+    } else {
+        null
+    }
+
     fun validate(): ReadTopicRequest {
         if (maxRecords < 0 || maxRecords > MAX_KAFKA_RECORDS) {
             throw IllegalArgumentException("maxRecords must be between 0 and $MAX_KAFKA_RECORDS")
@@ -69,6 +76,10 @@ data class ReadTopicRequest(
             return this
         }
     }
+}
+
+enum class ReadFrom {
+    Beginning, Offset, End
 }
 
 data class RecordFilter(

@@ -1,6 +1,5 @@
 package no.nav.tms.kafka.dashboard.api
 
-import no.nav.tms.common.util.config.StringEnvVar
 import no.nav.tms.kafka.dashboard.DeserializerType
 import org.apache.kafka.clients.CommonClientConfigs
 import org.apache.kafka.clients.consumer.ConsumerConfig
@@ -12,10 +11,6 @@ import java.util.*
 object KafkaPropertiesFactory {
 
     private val environment = EnvWrapper.getEnv()
-
-    private const val KAFKA_SCHEMA_REGISTRY: String = "KAFKA_SCHEMA_REGISTRY"
-    private const val KAFKA_SCHEMA_REGISTRY_USER: String = "KAFKA_SCHEMA_REGISTRY_USER"
-    private const val KAFKA_SCHEMA_REGISTRY_PASSWORD: String = "KAFKA_SCHEMA_REGISTRY_PASSWORD"
 
     fun createAivenConsumerProperties(
         keyDeserializerType: DeserializerType,
