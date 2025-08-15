@@ -80,12 +80,12 @@ class CachingKafkaAdminService(
                 maxRecords = batchSize,
             ).let {
                 if (filter != null) {
-                    filterRecords(filter, records)
+                    filterRecords(filter, it)
                 } else {
-                    records
+                    it
                 }
             }.let {
-                records.addAll(records)
+                records.addAll(it)
             }
 
             currentOffset += batchSize
@@ -124,12 +124,12 @@ class CachingKafkaAdminService(
                 ).let {
                     recordsReadLastIter += it.size
                     if (filter != null) {
-                        filterRecords(filter, records)
+                        filterRecords(filter, it)
                     } else {
-                        records
+                        it
                     }
                 }.let {
-                    records.addAll(records)
+                    records.addAll(it)
                 }
             }
 
@@ -185,12 +185,12 @@ class CachingKafkaAdminService(
                 .let {
                     recordsReadLastIter += it.size
                     if (filter != null) {
-                        filterRecords(filter, records)
+                        filterRecords(filter, it)
                     } else {
-                        records
+                        it
                     }
                 }.let {
-                    records.addAll(records)
+                    records.addAll(it)
                 }
 
                 log.info { "Iteration: { records: ${records.size}, readThisIter: $recordsReadLastIter, batchSize: $batchSize }" }
