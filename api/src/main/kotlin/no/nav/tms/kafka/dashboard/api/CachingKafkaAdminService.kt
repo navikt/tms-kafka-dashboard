@@ -103,7 +103,7 @@ class CachingKafkaAdminService(
             1000
         }
 
-        val partitions = partition?.let { listOf(it)}
+        val partitions = partition?.let { listOf(it) }
             ?: kafkaReader.getPartitions(topicName).map { it.partition() }
 
         var currentOffset = offset

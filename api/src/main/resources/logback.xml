@@ -30,5 +30,5 @@
 
     <logger name="org.apache.kafka" level="ERROR" />
     <logger name="io.confluent.kafka" level="ERROR" />
-    <logger name="io.ktor.server" level="TRACE" />
+<!--    <logger name="io.ktor.server" level="TRACE" />-->
 </configuration>
