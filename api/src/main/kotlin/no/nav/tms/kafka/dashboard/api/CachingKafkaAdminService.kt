@@ -1,5 +1,6 @@
 package no.nav.tms.kafka.dashboard.api
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import no.nav.tms.kafka.dashboard.api.search.GuidHelper
 import no.nav.tms.kafka.dashboard.api.search.OffsetCache
 import org.apache.kafka.clients.consumer.OffsetAndMetadata
@@ -12,6 +13,8 @@ class CachingKafkaAdminService(
     private val kafkaReader: KafkaReader,
     private val offsetCache: OffsetCache
 ) : KafkaAdminService {
+
+    private val log = KotlinLogging.logger { }
 
     override fun getAvailableTopics(): List<String> {
         return kafkaReader.appConfig.topics.map { it.topicName }
@@ -170,12 +173,16 @@ class CachingKafkaAdminService(
                     currentOffsetForPartition to batchSize
                 }
 
+                val currentOffsetRangeEnd = readFromOffset + adjustedBatchSize
+
                 kafkaReader.readFromPartition(
                     topicName = topicName,
                     partition = currentPartition,
                     offset = readFromOffset,
                     maxRecords = adjustedBatchSize,
-                ).let {
+                )
+                .filter { it.offset < currentOffsetRangeEnd }
+                .let {
                     recordsReadLastIter += it.size
                     if (filter != null) {
                         filterRecords(filter, records)
@@ -185,6 +192,8 @@ class CachingKafkaAdminService(
                 }.let {
                     records.addAll(records)
                 }
+
+                log.info { "Iteration: { records: ${records.size}, readThisIter: $recordsReadLastIter, batchSize: $batchSize }" }
 
                 currentOffsets.computeIfPresent(currentPartition) { _, currentOffset -> currentOffset - batchSize }
             }
