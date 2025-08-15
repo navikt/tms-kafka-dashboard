@@ -18,10 +18,12 @@ class KafkaReader(val appConfig: KafkaAppConfig) {
         offset: Long,
         maxRecords: Int
     ): List<KafkaRecord> {
+        if (maxRecords < 1) {
+            return emptyList()
+        }
+
         val kafkaConsumer = createKafkaConsumerForTopic(null, topicName)
         val kafkaRecords = mutableListOf<KafkaRecord>()
-
-        val config = appConfig.config(topicName)
 
         kafkaConsumer.use { consumer ->
             val topicPartition = TopicPartition(topicName, partition)
@@ -52,13 +54,11 @@ class KafkaReader(val appConfig: KafkaAppConfig) {
     fun readFromAllPartitions(
         topicName: String,
         maxRecords: Int,
-        offsets: Map<Int, Long>
+        offset: Long
     ): List<KafkaRecord> {
 
         val kafkaConsumer = createKafkaConsumerForTopic(null, topicName)
         val kafkaRecords = mutableListOf<KafkaRecord>()
-
-        val config = appConfig.config(topicName)
 
         kafkaConsumer.use { consumer ->
             val topicPartitions = consumer.partitionsFor(topicName)
@@ -67,7 +67,7 @@ class KafkaReader(val appConfig: KafkaAppConfig) {
             consumer.assign(topicPartitions)
 
             topicPartitions.forEach {
-                consumer.seek(it, offsets[it.partition()] ?: 0)
+                consumer.seek(it, offset)
             }
 
             val recordsPerPartition = topicPartitions.associate {

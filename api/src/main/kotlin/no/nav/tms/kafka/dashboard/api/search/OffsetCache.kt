@@ -26,7 +26,7 @@ class OffsetCache(
     private val isUpdating = AtomicBoolean(false)
     private val isReady = AtomicBoolean(false)
 
-    fun findFirstPartitionOffset(topicName: String, recordKey: String): PartitionOffset? {
+    fun findPartitionOffetRangeForKey(topicName: String, recordKey: String): PartitionOffsetRange? {
         if (!isReady.get()) {
             return null
         }
@@ -37,15 +37,16 @@ class OffsetCache(
 
         return database.singleOrNull {
             queryOf(
-                "select recordPartition, recordOffset from offset_cache where recordKey = :recordKey and topicId = :topicId order by createdAt limit 1",
+                "select recordPartition, min(recordOffset) as min_offset, max(recordOffset) as max_offset from offset_cache where recordKey = :recordKey and topicId = :topicId",
                 mapOf(
                     "topicId" to topicId(topicName),
                     "recordKey" to recordKey
                 )
             ).map {
-                PartitionOffset(
+                PartitionOffsetRange(
                     partition = it.int("recordPartition"),
-                    offset = it.long("recordOffset")
+                    offsetStart = it.long("min_offset"),
+                    offsetEnd = it.long("max_offset"),
                 )
             }.asSingle
         }
@@ -258,6 +259,14 @@ class OffsetCache(
         val partition: Int,
         val offset: Long
     )
+
+    data class PartitionOffsetRange(
+        val partition: Int,
+        val offsetStart: Long,
+        val offsetEnd: Long
+    ) {
+        val length get() = (1 + (offsetEnd - offsetStart)).toInt()
+    }
 }
 
 

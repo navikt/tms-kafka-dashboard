@@ -240,9 +240,9 @@ function SetConsumerOffsetCard(props: { availableTopics: string[] }) {
 }
 
 enum FetchFrom {
-	BEGINNING = 'BEGINNING',
-	END = 'END',
-	OFFSET = 'OFFSET'
+	BEGINNING = 'Beginning',
+	END = 'End',
+	OFFSET = 'Offset'
 }
 
 function ReadFromTopicCard(props: { availableTopics: string[] }) {
@@ -275,31 +275,18 @@ function ReadFromTopicCard(props: { availableTopics: string[] }) {
 		setStartTimeMs(Date.now());
 		setIsLoading(true);
 
-		let fetchFromOffset;
+		let fetchFrom = fetchFromField;
+		let fetchFromOffset = null;
 
-		if (fetchFromField === FetchFrom.BEGINNING) {
-			fetchFromOffset = 0;
-		} else if (fetchFromField === FetchFrom.END) {
-			try {
-				const lastRecordOffset = (await getLastRecordOffset({ topicName: topicNameField, topicPartition })).data
-					.latestRecordOffset;
-
-				fetchFromOffset = lastRecordOffset - maxRecords;
-			} catch (e) {
-				setStartTimeMs(null);
-				setIsLoading(false);
-				errorToast('Klarte ikke å hente siste record offset');
-				return;
-			}
-		} else {
+		if (fetchFromField === FetchFrom.OFFSET) {
 			fetchFromOffset = parseInt(fromOffsetField, 10);
 		}
 
 		const request: ReadFromTopicRequest = {
 			topicName: topicNameField,
-			topicAllPartitions: topicAllPartitionsField,
 			topicPartition,
 			fromOffset: fetchFromOffset,
+			readFromPosition: fetchFrom,
 			maxRecords,
 			filterText: keyValueFilterField
 		};

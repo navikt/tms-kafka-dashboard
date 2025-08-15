@@ -56,10 +56,10 @@ const val MAX_KAFKA_RECORDS = 100
 
 data class ReadTopicRequest(
     val topicName: String,
-    val topicAllPartitions: Boolean,
-    val topicPartition: Int,
+    val readFromPosition: ReadFrom,
+    val topicPartition: Int?,
     val maxRecords: Int,
-    val fromOffset: Long,
+    val fromOffset: Long?,
     val filter: RecordFilter?
 ) {
     fun validate(): ReadTopicRequest {
@@ -69,6 +69,10 @@ data class ReadTopicRequest(
             return this
         }
     }
+}
+
+enum class ReadFrom {
+    Beginning, Offset, End
 }
 
 data class RecordFilter(
