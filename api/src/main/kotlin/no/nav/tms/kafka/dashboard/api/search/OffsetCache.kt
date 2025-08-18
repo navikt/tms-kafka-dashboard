@@ -40,7 +40,7 @@ class OffsetCache(
 
         return database.singleOrNull {
             queryOf(
-                "select recordPartition, min(recordOffset) as min_offset, max(recordOffset) as max_offset from offset_cache where recordKey = :recordKey and topicId = :topicId",
+                "select recordPartition, min(recordOffset) as min_offset, max(recordOffset) as max_offset from offset_cache where recordKey = :recordKey and topicId = :topicId group by recordPartition",
                 mapOf(
                     "topicId" to topicId(topicName),
                     "recordKey" to longValue
