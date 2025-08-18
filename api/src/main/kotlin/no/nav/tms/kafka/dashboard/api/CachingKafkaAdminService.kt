@@ -25,12 +25,10 @@ class CachingKafkaAdminService(
     }
 
     override fun readTopic(request: ReadTopicRequest): List<KafkaRecord> {
-        val keySearch = request.filter?.text?.lowercase()?.trim()
 
-        val keyIsGuid = keySearch?.let { GuidHelper.isGuid(it) } ?: false
 
-        val offsetPartitionRange = if(keyIsGuid) {
-            offsetCache.findPartitionOffetRangeForKey(request.topicName, keySearch!!)
+        val offsetPartitionRange = if(request.filter?.key != null) {
+            offsetCache.findPartitionOffetRangeForKey(request.topicName, request.filter.key)
         } else {
             null
         }
@@ -80,7 +78,7 @@ class CachingKafkaAdminService(
                 maxRecords = batchSize,
             ).let {
                 if (filter != null) {
-                    filterRecords(filter, it)
+                    records.filterBy(filter.value, KafkaRecord::value)
                 } else {
                     it
                 }
@@ -229,19 +227,25 @@ class CachingKafkaAdminService(
     companion object {
 
         fun filterRecords(
-            filter: RecordFilter?,
+            filter: RecordFilter,
             records: List<KafkaRecord>
         ): List<KafkaRecord> {
-            if (filter == null || filter.text.isNullOrBlank()) {
-                return records
-            }
 
-            return records.filter {
-                val filterText = insensitiveText(filter.text)
-                val keyMatches = it.key != null && insensitiveText(it.key).contains(filterText)
-                val valueMatches = it.value != null && insensitiveText(it.value).contains(filterText)
+            return records
+                .filterBy(filter.key, KafkaRecord::key)
+                .filterBy(filter.value, KafkaRecord::value)
+        }
 
-                keyMatches || valueMatches
+        private fun List<KafkaRecord>.filterBy(filterText: String?, fieldProvider: (KafkaRecord) -> String?): List<KafkaRecord> {
+            val insensitiveText = filterText?.let(::insensitiveText)
+
+            return if (insensitiveText != null) {
+                filter { record ->
+                    val fieldContent = fieldProvider.invoke(record)
+                    fieldContent != null && insensitiveText(fieldContent).contains(insensitiveText)
+                }
+            } else {
+                this
             }
         }
 

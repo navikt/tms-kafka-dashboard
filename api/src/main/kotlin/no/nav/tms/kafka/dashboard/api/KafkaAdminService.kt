@@ -56,8 +56,10 @@ class KafkaAdminServiceMock(
                     offset
                 )
             }
-        }.let {
-            CachingKafkaAdminService.filterRecords(request.filter, it)
+        }.let { records ->
+            request.filter?.let {
+                CachingKafkaAdminService.filterRecords(request.filter, records)
+            } ?: records
         }
     }
 

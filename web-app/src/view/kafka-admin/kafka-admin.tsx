@@ -253,7 +253,8 @@ function ReadFromTopicCard(props: { availableTopics: string[] }) {
 	const [fetchFromField, setFetchFromField] = useState<FetchFrom>(FetchFrom.END);
 	const [fromOffsetField, setFromOffsetField] = useState('0');
 	const [maxRecordsField, setMaxRecordsField] = useState('50');
-	const [keyValueFilterField, setKeyValueFilterField] = useState('');
+	const [keyFilterField, setKeyFilterField] = useState('');
+	const [valueFilterField, setValueFilterField] = useState('');
 
 	const [clickedRecord, setClickedRecord] = useState<KafkaRecord | null>(null);
 	const [recordsFromTopic, setRecordsFromTopic] = useState<KafkaRecord[]>([]);
@@ -295,7 +296,8 @@ function ReadFromTopicCard(props: { availableTopics: string[] }) {
 			fromOffset: fetchFromOffset,
 			readFromPosition: fetchFrom,
 			maxRecords,
-			filterText: keyValueFilterField
+			keyFilterText: keyFilterField,
+			valueFilterText: valueFilterField
 		};
 
 		readFromTopic(request)
@@ -383,9 +385,15 @@ function ReadFromTopicCard(props: { availableTopics: string[] }) {
 			/>
 
 			<TextField
-				label="Key/value filter (tip: max=1 can be used to reduce waiting)"
-				value={keyValueFilterField}
-				onChange={e => setKeyValueFilterField(e.target.value)}
+				label="Key filter (tip: enter exact event id for faster search)"
+				value={keyFilterField}
+				onChange={e => setKeyFilterField(e.target.value)}
+			/>
+
+			<TextField
+				label="Value filter"
+				value={valueFilterField}
+				onChange={e => setValueFilterField(e.target.value)}
 			/>
 
 			<Button onClick={handleReadFromTopic} variant="tertiary">

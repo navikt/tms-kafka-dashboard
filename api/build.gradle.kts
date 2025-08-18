@@ -40,6 +40,7 @@ dependencies {
     implementation(Ktor.Server.netty)
     implementation(Ktor.Server.statusPages)
     implementation(Ktor.Serialization.jackson)
+    implementation(Ulid.creator)
     implementation(TmsCommonLib.utils)
     implementation(TmsCommonLib.metrics)
     implementation(TmsKtorTokenSupport.azureValidation)
