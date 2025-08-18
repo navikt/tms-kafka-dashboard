@@ -76,7 +76,7 @@ class CachingKafkaAdminService(
                 maxRecords = batchSize,
             ).let {
                 if (filter != null) {
-                    records.filterBy(filter.value, KafkaRecord::value)
+                    it.filterBy(filter.value, KafkaRecord::value)
                 } else {
                     it
                 }
