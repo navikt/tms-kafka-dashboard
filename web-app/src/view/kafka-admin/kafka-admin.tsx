@@ -271,9 +271,9 @@ function ReadFromTopicCard(props: { availableTopics: string[] }) {
 		let topicPartition;
 
 		if (topicAllPartitionsField) {
-			topicPartition = parseInt(topicPartitionField, 10);
-		} else {
 			topicPartition = null
+		} else {
+			topicPartition = parseInt(topicPartitionField, 10);
 		}
 
 		const maxRecords = parseInt(maxRecordsField, 10);
