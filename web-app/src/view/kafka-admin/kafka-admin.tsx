@@ -403,7 +403,6 @@ function ReadFromTopicCard(props: { availableTopics: string[] }) {
 				<table className="tabell">
 					<thead>
 						<tr>
-							<th>Created at</th>
 							<th>Partition</th>
 							<th>Offset</th>
 							<th>Key</th>
@@ -419,7 +418,6 @@ function ReadFromTopicCard(props: { availableTopics: string[] }) {
 										onClick={() => setClickedRecord(record)}
 										className="kafka-record-row"
 									>
-										<td>{record.timestamp}</td>
 										<td>{record.partition}</td>
 										<td>{record.offset}</td>
 										<td>{record.key || 'NO_KEY'}</td>

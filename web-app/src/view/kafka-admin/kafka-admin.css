@@ -2,7 +2,7 @@
   display: grid;
   grid-column-gap: 2rem;
   grid-template-rows: 1fr;
-  grid-template-columns: 480px 1fr;
+  grid-template-columns: 540px 1fr;
 }
 .kafka-admin__col > *:not(:last-child) {
   margin-bottom: 2rem;
