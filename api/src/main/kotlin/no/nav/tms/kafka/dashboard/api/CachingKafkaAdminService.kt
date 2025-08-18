@@ -155,7 +155,7 @@ class CachingKafkaAdminService(
             ?: kafkaReader.getPartitions(topicName).map { it.partition() }
 
         val currentOffsets = partitions
-            .associateWith { kafkaReader.lastRecordOffset(topicName, it) - batchSize}
+            .associateWith { kafkaReader.lastRecordOffset(topicName, it) - batchSize }
             .toMutableMap()
 
         var recordsReadLastIter = Int.MAX_VALUE
@@ -165,7 +165,7 @@ class CachingKafkaAdminService(
 
             partitions.forEach { currentPartition ->
 
-                val currentOffsetForPartition = currentOffsets[partition]!!
+                val currentOffsetForPartition = currentOffsets[currentPartition]!!
 
                 val (readFromOffset, adjustedBatchSize) = if(currentOffsetForPartition < 0) {
                     0L to (batchSize + currentOffsetForPartition).toInt()
