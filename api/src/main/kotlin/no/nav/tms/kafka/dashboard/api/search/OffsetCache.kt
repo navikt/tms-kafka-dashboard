@@ -38,6 +38,8 @@ class OffsetCache(
 
         val longValue = convertKeyToLong(recordKey)
 
+        log.info { "Looking for min/max offset for key { string: $recordKey, longValue: $longValue }" }
+
         return database.singleOrNull {
             queryOf(
                 "select recordPartition, min(recordOffset) as min_offset, max(recordOffset) as max_offset from offset_cache where recordKey = :recordKey and topicId = :topicId group by recordPartition",
