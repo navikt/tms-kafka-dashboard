@@ -23,16 +23,11 @@ class OffsetCache(
     private lateinit var topics: List<TopicInfo>
     private lateinit var topicIds: Map<String, Int>
 
-    private val isUpdating = AtomicBoolean(false)
     private val isReady = AtomicBoolean(false)
 
     fun findPartitionOffetRangeForKey(topicName: String, recordKey: String): PartitionOffsetRange? {
         if (!isReady.get()) {
             return null
-        }
-
-        while (isUpdating.get()) {
-            Thread.sleep(20)
         }
 
         return database.singleOrNull {
@@ -68,7 +63,6 @@ class OffsetCache(
     }
 
     override val job = initializeJob {
-        isUpdating.set(true)
 
         if (isReady.get()) {
             log.info { "Updating offset cache" }
@@ -108,7 +102,6 @@ class OffsetCache(
 
         log.info { "Cache fill complete." }
 
-        isUpdating.set(false)
         isReady.set(true)
     }
 

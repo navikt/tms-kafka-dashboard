@@ -268,7 +268,14 @@ function ReadFromTopicCard(props: { availableTopics: string[] }) {
 			return;
 		}
 
-		const topicPartition = parseInt(topicPartitionField, 10);
+		let topicPartition;
+
+		if (topicAllPartitionsField) {
+			topicPartition = parseInt(topicPartitionField, 10);
+		} else {
+			topicPartition = null
+		}
+
 		const maxRecords = parseInt(maxRecordsField, 10);
 
 		setRecordsFromTopic([]);
@@ -404,7 +411,6 @@ function ReadFromTopicCard(props: { availableTopics: string[] }) {
 					</thead>
 					<tbody>
 						{recordsFromTopic
-							.sort((r1, r2) => r1.offset - r2.offset)
 							.map(record => {
 								return (
 									<tr
