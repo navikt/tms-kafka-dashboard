@@ -6,7 +6,7 @@ create table topic (
 CREATE TABLE offset_cache
 (
     topicId integer not null,
-    recordKey varchar(100),
+    recordKey bigint,
     recordPartition smallint not null,
     recordOffset bigint not null,
     createdAt timestamp with time zone not null,

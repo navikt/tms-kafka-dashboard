@@ -63,10 +63,10 @@ data class ReadTopicRequest(
     val fromOffset: Long?,
     @JsonAlias("filter") private val _filter: RecordFilter?
 ) {
-    val filter = if (_filter != null && !_filter.text.isNullOrBlank()) {
-        _filter
-    } else {
+    val filter = if (_filter == null || (_filter.key.isNullOrBlank() && _filter.value.isNullOrBlank())) {
         null
+    } else {
+        _filter
     }
 
     fun validate(): ReadTopicRequest {
@@ -83,8 +83,10 @@ enum class ReadFrom {
 }
 
 data class RecordFilter(
-    val text: String?
+    val key: String?,
+    val value: String?
 )
+
 
 data class GetLastRecordOffsetRequest(
     val topicName: String,

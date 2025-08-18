@@ -8,11 +8,11 @@ object GuidHelper {
     private val UUID_PATTERN = "^$BASE_16{8}-$BASE_16{4}-$BASE_16{4}-$BASE_16{4}-$BASE_16{12}$".toRegex()
     private val ULID_PATTERN = "^[0-7]$BASE_32_ULID{25}$".toRegex()
 
-    private fun isUlid(key: String): Boolean {
+    fun isUlid(key: String): Boolean {
         return ULID_PATTERN.matches(key)
     }
 
-    private fun isUuid(key: String): Boolean {
+    fun isUuid(key: String): Boolean {
         return UUID_PATTERN.matches(key)
     }
 
