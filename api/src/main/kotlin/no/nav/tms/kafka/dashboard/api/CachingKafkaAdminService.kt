@@ -25,7 +25,6 @@ class CachingKafkaAdminService(
 
     override fun readTopic(request: ReadTopicRequest): List<KafkaRecord> {
 
-
         val offsetPartitionRange = if(request.filter?.key != null) {
             offsetCache.findPartitionOffetRangeForKey(request.topicName, request.filter.key)
         } else {
@@ -77,7 +76,7 @@ class CachingKafkaAdminService(
                 maxRecords = batchSize,
             ).let {
                 if (filter != null) {
-                    records.filterBy(filter.value, KafkaRecord::value)
+                    it.filterBy(filter.value, KafkaRecord::value)
                 } else {
                     it
                 }
