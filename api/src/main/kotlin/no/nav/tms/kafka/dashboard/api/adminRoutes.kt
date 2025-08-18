@@ -66,7 +66,10 @@ data class ReadTopicRequest(
     val filter = if (_filter == null || (_filter.key.isNullOrBlank() && _filter.value.isNullOrBlank())) {
         null
     } else {
-        _filter
+        RecordFilter(
+            key = _filter.key?.takeUnless { it.isBlank() },
+            value = _filter.value?.takeUnless { it.isBlank() }
+        )
     }
 
     fun validate(): ReadTopicRequest {
