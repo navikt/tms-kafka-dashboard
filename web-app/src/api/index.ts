@@ -72,7 +72,7 @@ export function readFromTopic(request: ReadFromTopicRequest): AxiosPromise<Kafka
 		fromOffset: request.fromOffset,
 		filter: {
 			key: request.keyFilterText,
-			value: request.keyFilterText
+			value: request.valueFilterText
 		}
 	});
 }

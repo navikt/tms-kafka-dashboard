@@ -1,7 +1,6 @@
 package no.nav.tms.kafka.dashboard.api
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import no.nav.tms.kafka.dashboard.api.search.GuidHelper
 import no.nav.tms.kafka.dashboard.api.search.OffsetCache
 import org.apache.kafka.clients.consumer.OffsetAndMetadata
 import org.apache.kafka.common.TopicPartition
