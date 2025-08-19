@@ -76,7 +76,7 @@ class CachingKafkaAdminService(
                 maxRecords = batchSize,
             ).let {
                 if (filter != null) {
-                    it.filterBy(filter.value, KafkaRecord::value)
+                    filterRecords(filter, it)
                 } else {
                     it
                 }
@@ -230,17 +230,22 @@ class CachingKafkaAdminService(
         ): List<KafkaRecord> {
 
             return records
-                .filterBy(filter.key, KafkaRecord::key)
-                .filterBy(filter.value, KafkaRecord::value)
+                .filterBy(filter.key, exactMatch = true, KafkaRecord::key)
+                .filterBy(filter.value, exactMatch = false, KafkaRecord::value)
         }
 
-        private fun List<KafkaRecord>.filterBy(filterText: String?, fieldProvider: (KafkaRecord) -> String?): List<KafkaRecord> {
+        private fun List<KafkaRecord>.filterBy(filterText: String?, exactMatch: Boolean, fieldProvider: (KafkaRecord) -> String?): List<KafkaRecord> {
             val insensitiveText = filterText?.let(::insensitiveText)
 
             return if (insensitiveText != null) {
                 filter { record ->
                     val fieldContent = fieldProvider.invoke(record)
-                    fieldContent != null && insensitiveText(fieldContent).contains(insensitiveText)
+
+                    if (exactMatch) {
+                        fieldContent != null && insensitiveText(fieldContent) == insensitiveText
+                    } else {
+                        fieldContent != null && insensitiveText(fieldContent).contains(insensitiveText)
+                    }
                 }
             } else {
                 this
