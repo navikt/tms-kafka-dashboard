@@ -385,7 +385,7 @@ function ReadFromTopicCard(props: { availableTopics: string[] }) {
 			/>
 
 			<TextField
-				label="Key filter (tip: enter exact event id for faster search)"
+				label="Key filter (exact match)"
 				value={keyFilterField}
 				onChange={e => setKeyFilterField(e.target.value)}
 			/>
