@@ -1,20 +1,17 @@
-package no.nav.tms.kafka.dashboard.api.search
+package no.nav.tms.kafka.dashboard.api.cache
 
 import com.github.f4b6a3.ulid.Ulid
 import io.github.oshai.kotlinlogging.KotlinLogging
-import io.ktor.utils.io.core.*
 import kotliquery.queryOf
 import no.nav.tms.common.util.scheduling.PeriodicJob
 import no.nav.tms.kafka.dashboard.api.KafkaReader
 import no.nav.tms.kafka.dashboard.api.KafkaRecord
-import no.nav.tms.kafka.dashboard.api.database.Database
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.time.Duration
 import java.time.ZonedDateTime
-import java.util.UUID
+import java.util.*
 import java.util.concurrent.atomic.AtomicBoolean
-import kotlin.text.toByteArray
 
 class OffsetCache(
     private val database: Database,
@@ -38,8 +35,6 @@ class OffsetCache(
 
         val longValue = convertKeyToLong(recordKey)
 
-        log.info { "Looking for min/max offset for key { string: $recordKey, longValue: $longValue }" }
-
         return database.singleOrNull {
             queryOf(
                 "select recordPartition, min(recordOffset) as min_offset, max(recordOffset) as max_offset from offset_cache where recordKey = :recordKey and topicId = :topicId group by recordPartition",
@@ -54,6 +49,41 @@ class OffsetCache(
                     offsetEnd = it.long("max_offset"),
                 )
             }.asSingle
+        }
+    }
+
+    fun findPartitionOffetRangesForTime(topicName:String, fromTime: ZonedDateTime, toTime: ZonedDateTime): List<PartitionOffsetRange> {
+        if (!isReady.get()) {
+            return emptyList()
+        }
+
+        return database.list {
+            queryOf(
+                """
+                    select 
+                        recordPartition,
+                        min(recordOffset) as min_offset,
+                        max(recordOffset) as max_offset
+                    from offset_cache 
+                    where 
+                        timestamp > :start and
+                        timestamp < :end and 
+                        recordKey = :recordKey and
+                        topicId = :topicId
+                    group by recordPartition
+                    """,
+                mapOf(
+                    "topicId" to topicId(topicName),
+                    "start" to fromTime,
+                    "end" to toTime
+                )
+            ).map {
+                PartitionOffsetRange(
+                    partition = it.int("recordPartition"),
+                    offsetStart = it.long("min_offset"),
+                    offsetEnd = it.long("max_offset"),
+                )
+            }.asList
         }
     }
 
@@ -256,7 +286,9 @@ class OffsetCache(
     }
 
     private fun insertEntry(entry: CacheEntry) {
-        database.insert { queryOf("""
+        database.insert {
+            queryOf(
+                """
             insert into offset_cache(
                 topicId,
                 recordKey, 
@@ -271,14 +303,15 @@ class OffsetCache(
                 :createdAt
             )
         """,
-            mapOf(
-                "topicId" to entry.topicId,
-                "recordKey" to entry.key,
-                "partition" to entry.partition,
-                "offset" to entry.offset,
-                "createdAt" to entry.createdAt
+                mapOf(
+                    "topicId" to entry.topicId,
+                    "recordKey" to entry.key,
+                    "partition" to entry.partition,
+                    "offset" to entry.offset,
+                    "createdAt" to entry.createdAt
+                )
             )
-        ) }
+        }
     }
 
     private fun topicId(topicName: String): Int {
@@ -311,5 +344,3 @@ class OffsetCache(
         val length get() = (1 + (offsetEnd - offsetStart)).toInt()
     }
 }
-
-

@@ -242,7 +242,8 @@ function SetConsumerOffsetCard(props: { availableTopics: string[] }) {
 enum FetchFrom {
 	BEGINNING = 'Beginning',
 	END = 'End',
-	OFFSET = 'Offset'
+	OFFSET = 'Offset',
+	TIMEWINDOW = 'TimeWindow'
 }
 
 function ReadFromTopicCard(props: { availableTopics: string[] }) {
@@ -252,6 +253,8 @@ function ReadFromTopicCard(props: { availableTopics: string[] }) {
 	const [topicPartitionField, setTopicPartitionField] = useState('0');
 	const [fetchFromField, setFetchFromField] = useState<FetchFrom>(FetchFrom.END);
 	const [fromOffsetField, setFromOffsetField] = useState('0');
+	const [fromTimeField, setFromTimeField] = useState('');
+	const [toTimeField, setToTimeField] = useState('');
 	const [maxRecordsField, setMaxRecordsField] = useState('50');
 	const [keyFilterField, setKeyFilterField] = useState('');
 	const [valueFilterField, setValueFilterField] = useState('');
@@ -296,6 +299,8 @@ function ReadFromTopicCard(props: { availableTopics: string[] }) {
 			fromOffset: fetchFromOffset,
 			readFromPosition: fetchFrom,
 			maxRecords,
+			fromTime: fromTimeField,
+			toTime: toTimeField,
 			keyFilterText: keyFilterField,
 			valueFilterText: valueFilterField
 		};
@@ -327,6 +332,7 @@ function ReadFromTopicCard(props: { availableTopics: string[] }) {
 		}
 	}, [startTimeMs]);
 
+	// @ts-ignore
 	return (
 		<Card
 			title="Read records from topic"
@@ -366,6 +372,7 @@ function ReadFromTopicCard(props: { availableTopics: string[] }) {
 				<option value={FetchFrom.BEGINNING}>Beginning (fetch the first records in the topic)</option>
 				<option value={FetchFrom.END}>End (fetch the last records in the topic)</option>
 				<option value={FetchFrom.OFFSET}>Offset (fetch from a specified offset)</option>
+				<option value={FetchFrom.TIMEWINDOW}>Time range (fetch events produced within given range)</option>
 			</Select>
 
 			{fetchFromField === FetchFrom.OFFSET ? (
@@ -374,6 +381,22 @@ function ReadFromTopicCard(props: { availableTopics: string[] }) {
 					type="number"
 					value={fromOffsetField}
 					onChange={e => setFromOffsetField(e.target.value)}
+				/>
+			) : null}
+
+			{fetchFromField === FetchFrom.TIMEWINDOW ? (
+				<TextField
+					label="From (YYYY-MM-DD hh:mm:ss)"
+					value={fromTimeField}
+					onChange={e => setFromTimeField(e.target.value)}
+				/>
+			) : null}
+
+			{fetchFromField === FetchFrom.TIMEWINDOW ? (
+				<TextField
+					label="To (YYYY-MM-DD hh:mm:ss)"
+					value={toTimeField}
+					onChange={e => setToTimeField(e.target.value)}
 				/>
 			) : null}
 

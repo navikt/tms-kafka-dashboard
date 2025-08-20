@@ -1,4 +1,4 @@
-package no.nav.tms.kafka.dashboard.api.database
+package no.nav.tms.kafka.dashboard.api.cache
 
 import com.zaxxer.hikari.HikariDataSource
 import kotliquery.Query

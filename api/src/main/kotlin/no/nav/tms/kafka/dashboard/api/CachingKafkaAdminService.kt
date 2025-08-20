@@ -1,9 +1,10 @@
 package no.nav.tms.kafka.dashboard.api
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import no.nav.tms.kafka.dashboard.api.search.OffsetCache
+import no.nav.tms.kafka.dashboard.api.cache.OffsetCache
 import org.apache.kafka.clients.consumer.OffsetAndMetadata
 import org.apache.kafka.common.TopicPartition
+import java.time.ZonedDateTime
 import java.util.*
 import kotlin.math.max
 import kotlin.math.min
@@ -32,12 +33,18 @@ class CachingKafkaAdminService(
         }
 
         return if (offsetPartitionRange != null) {
-            getWithinRange(
+            val records = getWithinOffsetPartitionRange(
                 topicName = request.topicName,
-                range = offsetPartitionRange,
+                offsetRange = offsetPartitionRange,
                 maxRecords = request.maxRecords,
-                filter = request.filter
+                filter = request.filter,
             )
+
+            return when (request.readFromPosition) {
+                ReadFrom.End -> records.sortedByDescending { it.timestamp }
+                ReadFrom.TimeWindow -> records.filterByTime(request.fromTime, request.toTime)
+                else -> records
+            }
         } else when(request.readFromPosition) {
             ReadFrom.Beginning -> getFromBeginning(
                 topicName = request.topicName,
@@ -58,20 +65,27 @@ class CachingKafkaAdminService(
                 maxRecords = request.maxRecords,
                 filter = request.filter
             )
+            ReadFrom.TimeWindow -> getWithinTimeRange(
+                topicName = request.topicName,
+                fromTime = request.fromTime,
+                toTime = request.toTime,
+                maxRecords = request.maxRecords,
+                filter = request.filter
+            )
         }
     }
 
-    private fun getWithinRange(topicName: String, range: OffsetCache.PartitionOffsetRange, maxRecords: Int, filter: RecordFilter?): List<KafkaRecord> {
+    private fun getWithinOffsetPartitionRange(topicName: String, offsetRange: OffsetCache.PartitionOffsetRange, maxRecords: Int, filter: RecordFilter?): List<KafkaRecord> {
 
         val records = mutableListOf<KafkaRecord>()
-        val batchSize = max(1000, range.length)
+        val batchSize = max(1000, offsetRange.length)
 
-        var currentOffset = range.offsetStart
+        var currentOffset = offsetRange.offsetStart
 
-        while (currentOffset <= range.offsetEnd && records.size < maxRecords) {
+        while (currentOffset <= offsetRange.offsetEnd && records.size < maxRecords) {
             kafkaReader.readFromPartition(
                 topicName = topicName,
-                partition = range.partition,
+                partition = offsetRange.partition,
                 offset = currentOffset,
                 maxRecords = batchSize,
             ).let {
@@ -88,6 +102,21 @@ class CachingKafkaAdminService(
         }
 
         return records.take(maxRecords)
+    }
+
+    private fun getWithinTimeRange(topicName: String, fromTime: ZonedDateTime?, toTime: ZonedDateTime?, maxRecords: Int, filter: RecordFilter?): List<KafkaRecord> {
+
+        val ranges = offsetCache.findPartitionOffetRangesForTime(
+            topicName,
+            fromTime = fromTime ?: ZonedDateTime.now().minusDays(30),
+            toTime = toTime ?: ZonedDateTime.now()
+        )
+
+        return ranges.flatMap {
+            getWithinOffsetPartitionRange(topicName, it, maxRecords, filter)
+        }
+            .sortedBy { it.timestamp }
+            .take(maxRecords)
     }
 
     private fun getFromBeginning(topicName: String, partition: Int?, maxRecords: Int, filter: RecordFilter?) =
@@ -230,11 +259,19 @@ class CachingKafkaAdminService(
         ): List<KafkaRecord> {
 
             return records
-                .filterBy(filter.key, exactMatch = true, KafkaRecord::key)
-                .filterBy(filter.value, exactMatch = false, KafkaRecord::value)
+                .filterByContent(filter.key, exactMatch = true, KafkaRecord::key)
+                .filterByContent(filter.value, exactMatch = false, KafkaRecord::value)
         }
 
-        private fun List<KafkaRecord>.filterBy(filterText: String?, exactMatch: Boolean, fieldProvider: (KafkaRecord) -> String?): List<KafkaRecord> {
+        private fun List<KafkaRecord>.filterByTime(start: ZonedDateTime?, end: ZonedDateTime?): List<KafkaRecord> {
+            return filter {
+                start == null || start < it.timestamp
+            }.filter {
+                end == null || end > it.timestamp
+            }
+        }
+
+        private fun List<KafkaRecord>.filterByContent(filterText: String?, exactMatch: Boolean, fieldProvider: (KafkaRecord) -> String?): List<KafkaRecord> {
             val insensitiveText = filterText?.let(::insensitiveText)
 
             return if (insensitiveText != null) {
