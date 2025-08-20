@@ -1,5 +1,4 @@
-package no.nav.tms.kafka.dashboard.api.search
-
+package no.nav.tms.kafka.dashboard.api.cache
 
 object GuidHelper {
     private const val BASE_16 = "[0-9a-fA-F]"

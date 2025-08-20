@@ -5,6 +5,7 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import no.nav.tms.kafka.dashboard.api.DTOMappers.toTopicWithOffset
+import java.time.*
 
 fun Route.adminRoutes(
     kafkaAdminService: KafkaAdminService,
@@ -61,7 +62,10 @@ data class ReadTopicRequest(
     val topicPartition: Int?,
     val maxRecords: Int,
     val fromOffset: Long?,
-    @JsonAlias("filter") private val _filter: RecordFilter?
+    @JsonAlias("filter") private val _filter: RecordFilter?,
+    @JsonAlias("fromTime") private val _fromTime: String?,
+    @JsonAlias("toTime") private val _toTime: String?,
+    val timezoneOffset: Int
 ) {
     val filter = if (_filter == null || (_filter.key.isNullOrBlank() && _filter.value.isNullOrBlank())) {
         null
@@ -72,6 +76,9 @@ data class ReadTopicRequest(
         )
     }
 
+    val fromTime: ZonedDateTime? = _fromTime?.takeUnless { it.isBlank() }?.let { parseTime(it) }
+    val toTime: ZonedDateTime? = _toTime?.takeUnless { it.isBlank() }?.let { parseTime(it) }
+
     fun validate(): ReadTopicRequest {
         if (maxRecords < 0 || maxRecords > MAX_KAFKA_RECORDS) {
             throw IllegalArgumentException("maxRecords must be between 0 and $MAX_KAFKA_RECORDS")
@@ -79,10 +86,28 @@ data class ReadTopicRequest(
             return this
         }
     }
+
+    private fun parseTime(timeString: String): ZonedDateTime {
+        return runCatching {
+            ZonedDateTime.parse(timeString)
+        }.getOrNull()
+            ?: runCatching {
+            LocalDateTime.parse(timeString)
+                .atOffset(ZoneOffset.ofHours(timezoneOffset))
+                .toZonedDateTime()
+        }.getOrNull()
+            ?: runCatching {
+            LocalDate.parse(timeString)
+                .atTime(0, 0)
+                .atOffset(ZoneOffset.ofHours(timezoneOffset))
+                .toZonedDateTime()
+        }.getOrNull()
+            ?: throw IllegalArgumentException("Could")
+    }
 }
 
 enum class ReadFrom {
-    Beginning, Offset, End
+    Beginning, Offset, End, TimeWindow
 }
 
 data class RecordFilter(

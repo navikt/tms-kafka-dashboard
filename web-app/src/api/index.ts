@@ -19,6 +19,8 @@ export interface ReadFromTopicRequest {
 	maxRecords: number;
 	topicPartition: number | null;
 	fromOffset: number | null;
+	fromTime: string | null;
+	toTime: string | null;
 	keyFilterText: string | null;
 	valueFilterText: string | null;
 }
@@ -70,10 +72,13 @@ export function readFromTopic(request: ReadFromTopicRequest): AxiosPromise<Kafka
 		readFromPosition: request.readFromPosition,
 		maxRecords: request.maxRecords,
 		fromOffset: request.fromOffset,
+		toTime: request.toTime,
+		fromTime: request.fromTime,
 		filter: {
 			key: request.keyFilterText,
 			value: request.valueFilterText
-		}
+		},
+		timezoneOffset: (new Date()).getTimezoneOffset()
 	});
 }
 

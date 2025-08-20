@@ -1,9 +1,8 @@
-package no.nav.tms.kafka.dashboard.api.database
+package no.nav.tms.kafka.dashboard.api.cache
 
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import org.flywaydb.core.Flyway
-import org.flywaydb.core.api.configuration.FluentConfiguration
 import org.hsqldb.Server
 
 class HsqlDatabase() : Database {

@@ -2,7 +2,6 @@ package no.nav.tms.kafka.dashboard
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
-import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.engine.*
@@ -13,8 +12,8 @@ import no.nav.tms.kafka.dashboard.api.CachingKafkaAdminService
 import no.nav.tms.kafka.dashboard.api.KafkaAdminService
 import no.nav.tms.kafka.dashboard.api.KafkaAdminServiceMock
 import no.nav.tms.kafka.dashboard.api.KafkaReader
-import no.nav.tms.kafka.dashboard.api.database.HsqlDatabase
-import no.nav.tms.kafka.dashboard.api.search.OffsetCache
+import no.nav.tms.kafka.dashboard.api.cache.HsqlDatabase
+import no.nav.tms.kafka.dashboard.api.cache.OffsetCache
 import no.nav.tms.token.support.azure.validation.azure
 import no.nav.tms.token.support.azure.validation.mock.azureMock
 
