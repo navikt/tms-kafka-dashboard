@@ -37,9 +37,9 @@ spec:
       enabled: true
       autoLogin: true
   ingresses:
-    - https://tms-kafka-dashboard.intern.dev.nav.no
+    - https://tms-kafka-dashboard.intern.nav.no
   kafka:
-    pool: nav-dev
+    pool: nav-prod
   env:
     - name: KAFKA_APP_CONFIG
       value: >
