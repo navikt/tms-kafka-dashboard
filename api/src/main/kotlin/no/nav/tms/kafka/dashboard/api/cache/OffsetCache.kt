@@ -66,8 +66,8 @@ class OffsetCache(
                         max(recordOffset) as max_offset
                     from offset_cache 
                     where 
-                        timestamp > :start and
-                        timestamp < :end and 
+                        createdAt > :start and
+                        createdAt < :end and 
                         recordKey = :recordKey and
                         topicId = :topicId
                     group by recordPartition
