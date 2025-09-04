@@ -149,7 +149,7 @@ class OffsetCache(
         partition: Int,
         batchSize: Int
     ): Int {
-        val start = lastCachedOffset(topicName, partition) ?: 0L
+        val start = lastCachedOffset(topicName, partition)?.plus(1L)  ?: 0L
 
         val records = kafkaReader.readFromPartition(topicName, partition, start, batchSize)
 
