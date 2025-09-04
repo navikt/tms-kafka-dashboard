@@ -68,7 +68,6 @@ class OffsetCache(
                     where 
                         createdAt > :start and
                         createdAt < :end and 
-                        recordKey = :recordKey and
                         topicId = :topicId
                     group by recordPartition
                     """,
