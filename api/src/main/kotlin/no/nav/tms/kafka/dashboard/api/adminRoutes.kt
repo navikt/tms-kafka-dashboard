@@ -65,7 +65,7 @@ data class ReadTopicRequest(
     @JsonAlias("filter") private val _filter: RecordFilter?,
     @JsonAlias("fromTime") private val _fromTime: String?,
     @JsonAlias("toTime") private val _toTime: String?,
-    val timezoneOffset: Int
+    val timezoneOffsetMinutes: Int
 ) {
     val filter = if (_filter == null || (_filter.key.isNullOrBlank() && _filter.value.isNullOrBlank())) {
         null
@@ -93,16 +93,24 @@ data class ReadTopicRequest(
         }.getOrNull()
             ?: runCatching {
             LocalDateTime.parse(timeString)
-                .atOffset(ZoneOffset.ofHours(timezoneOffset))
+                .atOffset(zoneOffset())
                 .toZonedDateTime()
         }.getOrNull()
             ?: runCatching {
             LocalDate.parse(timeString)
                 .atTime(0, 0)
-                .atOffset(ZoneOffset.ofHours(timezoneOffset))
+                .atOffset(zoneOffset())
                 .toZonedDateTime()
         }.getOrNull()
             ?: throw IllegalArgumentException("Could")
+    }
+
+    private fun zoneOffset(): ZoneOffset {
+        val hours = timezoneOffsetMinutes / 60
+
+        val minutes = timezoneOffsetMinutes - (hours * 60)
+
+        return ZoneOffset.ofHoursMinutes(hours, minutes)
     }
 }
 

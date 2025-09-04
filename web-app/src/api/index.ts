@@ -78,7 +78,7 @@ export function readFromTopic(request: ReadFromTopicRequest): AxiosPromise<Kafka
 			key: request.keyFilterText,
 			value: request.valueFilterText
 		},
-		timezoneOffset: (new Date()).getTimezoneOffset()
+		timezoneOffsetMinutes: (new Date()).getTimezoneOffset()
 	});
 }
 
