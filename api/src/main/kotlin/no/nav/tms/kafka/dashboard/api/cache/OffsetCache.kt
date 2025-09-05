@@ -252,7 +252,7 @@ class OffsetCache(
             queryOf(
                 """
                       merge into last_cached_offset as lco
-                        using (values :topicId, :partition, :lastOffset) tmp (topicId, partition, lastOffset) 
+                        using (values (:topicId, :partition, :lastOffset)) as tmp (topicId, partition, lastOffset) 
                       on (lco.topicId = tmp.topicId and lco.partition = tmp.partition)
                         when matched then update set lco.lastOffset = tmp.lastOffset
                         when not matched then insert (topicId, partition, lastOffset) values (tmp.topicId, tmp.partition, tmp.lastOffset)
@@ -269,7 +269,7 @@ class OffsetCache(
     private fun insertTopic(topic: String): Int {
         database.insert {
             queryOf(
-                "insert into topic(name) values (:name)",
+                "insert into topic(name) values (:name) on conflict do nothing",
                 mapOf("name" to topic)
             )
         }

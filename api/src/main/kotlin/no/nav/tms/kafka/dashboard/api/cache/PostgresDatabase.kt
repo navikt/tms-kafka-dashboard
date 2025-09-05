@@ -28,7 +28,7 @@ class PostgresDatabase : Database {
         private fun hikariCommonConfig(env: PgEnv): HikariConfig {
             val config = HikariConfig().apply {
                 driverClassName = "org.postgresql.Driver"
-                jdbcUrl = env.dbUrl
+                jdbcUrl = env.jdbcUrl
                 minimumIdle = 1
                 maxLifetime = 1800000
                 maximumPoolSize = 5
@@ -37,17 +37,13 @@ class PostgresDatabase : Database {
                 idleTimeout = 30000
                 isAutoCommit = true
                 transactionIsolation = "TRANSACTION_REPEATABLE_READ"
-                username = env.dbUser
-                password = env.dbPassword
             }
             return config
         }
     }
 
     private data class PgEnv(
-        val dbUrl: String = getEnvVar("PGURL"),
-        val dbUser: String = getEnvVar("PGUSER"),
-        val dbPassword: String = getEnvVar("PGPASSWORD")
+        val jdbcUrl: String = getEnvVar("PGJDBCURL"),
     )
 
 }

@@ -1,6 +1,6 @@
 create table topic (
     id serial primary key,
-    name text not null
+    name text not null unique
 );
 
 CREATE TABLE offset_cache

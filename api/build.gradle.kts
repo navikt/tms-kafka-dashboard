@@ -25,10 +25,9 @@ repositories {
 }
 
 dependencies {
-    implementation(FlywayHsql.core)
-    implementation(FlywayHsql.hsqldb)
+    implementation(Flyway.core)
+    implementation(Flyway.postgres)
     implementation(Hikari.cp)
-    implementation(Hsql.hsqldb)
     implementation(Kafka.clients)
     implementation(KotlinLogging.logging)
     implementation(KotliQuery.kotliquery)
@@ -40,6 +39,7 @@ dependencies {
     implementation(Ktor.Server.netty)
     implementation(Ktor.Server.statusPages)
     implementation(Ktor.Serialization.jackson)
+    implementation(Postgresql.postgresql)
     implementation(Ulid.creator)
     implementation(TmsCommonLib.utils)
     implementation(TmsCommonLib.metrics)
