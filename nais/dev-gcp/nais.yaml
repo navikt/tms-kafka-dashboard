@@ -22,7 +22,7 @@ spec:
     max: 1
   resources:
     limits:
-      memory: 3072Mi
+      memory: 1024Mi
     requests:
       cpu: 20m
       memory: 128Mi
@@ -40,6 +40,13 @@ spec:
     - https://tms-kafka-dashboard.intern.dev.nav.no
   kafka:
     pool: nav-dev
+  postgres:
+    cluster:
+      majorVersion: "17"
+      resources:
+        cpu: 100m
+        diskSize: 2Gi
+        memory: 2G
   env:
     - name: KAFKA_APP_CONFIG
       value: >

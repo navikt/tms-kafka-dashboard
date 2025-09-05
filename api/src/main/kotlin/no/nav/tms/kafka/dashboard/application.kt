@@ -12,8 +12,8 @@ import no.nav.tms.kafka.dashboard.api.CachingKafkaAdminService
 import no.nav.tms.kafka.dashboard.api.KafkaAdminService
 import no.nav.tms.kafka.dashboard.api.KafkaAdminServiceMock
 import no.nav.tms.kafka.dashboard.api.KafkaReader
-import no.nav.tms.kafka.dashboard.api.cache.HsqlDatabase
 import no.nav.tms.kafka.dashboard.api.cache.OffsetCache
+import no.nav.tms.kafka.dashboard.api.cache.PostgresDatabase
 import no.nav.tms.token.support.azure.validation.azure
 import no.nav.tms.token.support.azure.validation.mock.azureMock
 
@@ -23,7 +23,7 @@ fun main() {
     val webAppLocation: String
     val authFunction: Application.() -> Unit
 
-    val database = HsqlDatabase()
+    val database = PostgresDatabase()
 
     if(BooleanEnvVar.getEnvVarAsBoolean("LOCAL_DEV_MODE", false)) {
         adminService = KafkaAdminServiceMock(getKafkaConfig())
