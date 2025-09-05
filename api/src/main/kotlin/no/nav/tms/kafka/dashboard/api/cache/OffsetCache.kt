@@ -179,7 +179,7 @@ class OffsetCache(
             )
         }
 
-        entries.forEach(::insertEntry)
+        insertEntries(entries)
 
         entries.maxBy { it.offset }.let {
             updateLastCachedOffset(topicId, it.partition, it.offset)
@@ -282,6 +282,36 @@ class OffsetCache(
                 it.int("id")
             }.asSingle
         }
+    }
+
+    private fun insertEntries(entries: List<CacheEntry>) {
+        database.batch(
+                """
+            insert into offset_cache(
+                topicId,
+                recordKey, 
+                recordPartition,
+                recordOffset,
+                createdAt
+            ) values (
+                :topicId,
+                :recordKey,
+                :partition,
+                :offset,
+                :createdAt
+            )
+            on conflict do nothing
+        """,
+            entries.map { entry ->
+                mapOf(
+                    "topicId" to entry.topicId,
+                    "recordKey" to entry.key,
+                    "partition" to entry.partition,
+                    "offset" to entry.offset,
+                    "createdAt" to entry.createdAt
+                )
+            }
+        )
     }
 
     private fun insertEntry(entry: CacheEntry) {
