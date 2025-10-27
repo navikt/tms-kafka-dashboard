@@ -254,7 +254,7 @@ class OffsetCache(
                       merge into last_cached_offset as lco
                         using (values (:topicId, :partition, :lastOffset)) as tmp (topicId, partition, lastOffset) 
                       on (lco.topicId = tmp.topicId and lco.partition = tmp.partition)
-                        when matched then update set lco.lastOffset = tmp.lastOffset
+                        when matched then update set lastOffset = tmp.lastOffset
                         when not matched then insert (topicId, partition, lastOffset) values (tmp.topicId, tmp.partition, tmp.lastOffset)
                 """,
                 mapOf(
