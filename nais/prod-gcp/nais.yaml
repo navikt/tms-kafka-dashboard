@@ -1,19 +1,3 @@
----
-apiVersion: data.nais.io/v1
-kind: Postgres
-metadata:
-  name: kafka-offset-cache
-  namespace: min-side
-spec:
-  cluster:
-    majorVersion: "17"
-    resources:
-      cpu: 50m
-      diskSize: 10Gi
-      memory: 1G
-  database:
-    collation: nb_NO
----
 apiVersion: "nais.io/v1alpha1"
 kind: "Application"
 metadata:
@@ -60,8 +44,23 @@ spec:
     - https://tms-kafka-dashboard.intern.nav.no
   kafka:
     pool: nav-prod
-  postgres:
-    clusterName: kafka-offset-cache
+  gcp:
+    sqlInstances:
+      - name: kafka-offset-cache
+        type: POSTGRES_17
+        tier: db-f1-micro
+        diskType: SSD
+        highAvailability: false
+        diskSize: 10
+        diskAutoresize: false
+        autoBackupHour: 3
+        databases:
+          - name: kafka-offset-cache
+            envVarPrefix: DB
+        maintenance:
+          day: 1
+          hour: 4
+        cascadingDelete: true
   env:
     - name: RESET_CACHE
       value: "true"
