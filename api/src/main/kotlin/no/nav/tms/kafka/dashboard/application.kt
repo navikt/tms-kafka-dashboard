@@ -6,8 +6,8 @@ import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
-import no.nav.tms.common.util.config.BooleanEnvVar
 import no.nav.tms.common.util.config.BooleanEnvVar.getEnvVarAsBoolean
+import no.nav.tms.common.util.config.IntEnvVar
 import no.nav.tms.common.util.config.StringEnvVar
 import no.nav.tms.kafka.dashboard.api.CachingKafkaAdminService
 import no.nav.tms.kafka.dashboard.api.KafkaAdminService
@@ -38,12 +38,18 @@ fun main() {
             }
         }
     } else {
+
         val kafkaReader = KafkaReader(getKafkaConfig())
-        val offsetCache = OffsetCache(database, kafkaReader)
+        val offsetCache = OffsetCache(
+            database = database,
+            kafkaReader = kafkaReader,
+            cacheWriteBatchSize = IntEnvVar.getEnvVarAsInt("CACHE_WRITE_BATCH_SIZE", 500)
+        )
 
         adminService = CachingKafkaAdminService(
             kafkaReader = kafkaReader,
-            offsetCache = offsetCache
+            offsetCache = offsetCache,
+            kafkaReadBatchSize = IntEnvVar.getEnvVarAsInt("KAFKA_READ_BATCH_SIZE", 1000)
         )
         webAppLocation = "public"
         authFunction = {

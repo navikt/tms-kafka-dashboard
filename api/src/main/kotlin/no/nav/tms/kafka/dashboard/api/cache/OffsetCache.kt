@@ -16,8 +16,8 @@ import java.util.concurrent.atomic.AtomicBoolean
 class OffsetCache(
     private val database: Database,
     private val kafkaReader: KafkaReader,
+    cacheWriteBatchSize: Int,
     interval: Duration = Duration.ofMinutes(1),
-    batchSize: Int = 1000,
     retention: Duration = Duration.ofDays(14)
 ): PeriodicJob(interval) {
 
@@ -138,11 +138,11 @@ class OffsetCache(
                 var totalFilled = 0
 
                 while (!partitionComplete) {
-                    val filledThisIter = fillNext(topicName, partition, batchSize)
+                    val filledThisIter = fillNext(topicName, partition, cacheWriteBatchSize)
 
                     totalFilled += filledThisIter
 
-                    partitionComplete = filledThisIter < batchSize
+                    partitionComplete = filledThisIter < cacheWriteBatchSize
                 }
 
                 log.info { "Filled $totalFilled offsets for topic/partition [$topicName, $partition]" }

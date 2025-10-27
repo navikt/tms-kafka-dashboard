@@ -11,7 +11,8 @@ import kotlin.math.min
 
 class CachingKafkaAdminService(
     private val kafkaReader: KafkaReader,
-    private val offsetCache: OffsetCache
+    private val offsetCache: OffsetCache,
+    private val kafkaReadBatchSize: Int
 ) : KafkaAdminService {
 
     private val log = KotlinLogging.logger { }
@@ -78,7 +79,7 @@ class CachingKafkaAdminService(
     private fun getWithinOffsetPartitionRange(topicName: String, offsetRange: OffsetCache.PartitionOffsetRange, maxRecords: Int, filter: RecordFilter?): List<KafkaRecord> {
 
         val records = mutableListOf<KafkaRecord>()
-        val batchSize = max(1000, offsetRange.length)
+        val batchSize = max(kafkaReadBatchSize, offsetRange.length)
 
         var currentOffset = offsetRange.offsetStart
 
@@ -126,9 +127,9 @@ class CachingKafkaAdminService(
         val records = mutableListOf<KafkaRecord>()
 
         val batchSize = if (filter == null) {
-            min(maxRecords, 1000)
+            min(maxRecords, kafkaReadBatchSize)
         } else {
-            1000
+            kafkaReadBatchSize
         }
 
         val partitions = partition?.let { listOf(it) }
@@ -171,9 +172,9 @@ class CachingKafkaAdminService(
         val records = mutableListOf<KafkaRecord>()
 
         val batchSize = if (filter == null) {
-            min(maxRecords, 1000)
+            min(maxRecords, kafkaReadBatchSize)
         } else {
-            1000
+            kafkaReadBatchSize
         }
 
         val partitions = partition?.let { listOf(it)}
