@@ -8,9 +8,9 @@ spec:
   cluster:
     majorVersion: "17"
     resources:
-      cpu: 100m
-      diskSize: 10Gi
-      memory: 2G
+      cpu: 50m
+      diskSize: 2Gi
+      memory: 256Mi
   database:
     collation: nb_NO
 ---

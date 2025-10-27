@@ -1,3 +1,19 @@
+---
+apiVersion: data.nais.io/v1
+kind: Postgres
+metadata:
+  name: kafka-offset-cache
+  namespace: min-side
+spec:
+  cluster:
+    majorVersion: "17"
+    resources:
+      cpu: 50m
+      diskSize: 10Gi
+      memory: 1G
+  database:
+    collation: nb_NO
+---
 apiVersion: "nais.io/v1alpha1"
 kind: "Application"
 metadata:
@@ -26,7 +42,7 @@ spec:
     max: 1
   resources:
     limits:
-      memory: 8192Mi
+      memory: 768Mi
     requests:
       cpu: 20m
       memory: 128Mi
@@ -44,6 +60,8 @@ spec:
     - https://tms-kafka-dashboard.intern.nav.no
   kafka:
     pool: nav-prod
+  postgres:
+    clusterName: kafka-offset-cache
   env:
     - name: KAFKA_APP_CONFIG
       value: >
