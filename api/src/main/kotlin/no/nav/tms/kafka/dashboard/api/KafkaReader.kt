@@ -36,7 +36,7 @@ class KafkaReader(val appConfig: KafkaAppConfig) {
             consumer.seek(topicPartition, offset)
 
             while (kafkaRecords.size < maxRecords) {
-                val consumerRecords = consumer.poll(Duration.ofMillis(100))
+                val consumerRecords = consumer.poll(Duration.ofMillis(500))
 
                 // No more records to consume right now
                 if (consumerRecords.isEmpty) {

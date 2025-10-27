@@ -63,6 +63,8 @@ spec:
   postgres:
     clusterName: kafka-offset-cache
   env:
+    - name: RESET_CACHE
+      value: "true"
     - name: KAFKA_APP_CONFIG
       value: >
         {

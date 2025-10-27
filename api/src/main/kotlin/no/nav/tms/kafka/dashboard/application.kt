@@ -7,6 +7,7 @@ import io.ktor.server.auth.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import no.nav.tms.common.util.config.BooleanEnvVar
+import no.nav.tms.common.util.config.BooleanEnvVar.getEnvVarAsBoolean
 import no.nav.tms.common.util.config.StringEnvVar
 import no.nav.tms.kafka.dashboard.api.CachingKafkaAdminService
 import no.nav.tms.kafka.dashboard.api.KafkaAdminService
@@ -25,7 +26,7 @@ fun main() {
 
     val database = PostgresDatabase()
 
-    if(BooleanEnvVar.getEnvVarAsBoolean("LOCAL_DEV_MODE", false)) {
+    if(getEnvVarAsBoolean("LOCAL_DEV_MODE", false)) {
         adminService = KafkaAdminServiceMock(getKafkaConfig())
         webAppLocation = "web-app/dist"
         authFunction = {
@@ -61,7 +62,7 @@ fun main() {
 
             monitor.subscribe(ApplicationStarted) {
                 database.runFlywayMigrations()
-                adminService.initCache()
+                adminService.initCache(getEnvVarAsBoolean("RESET_CACHE", false))
             }
         },
         configure = {

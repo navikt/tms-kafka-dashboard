@@ -19,7 +19,7 @@ interface KafkaAdminService {
 
     fun setConsumerOffset(request: SetConsumerOffsetRequest)
 
-    fun initCache()
+    fun initCache(resetData: Boolean)
 }
 
 class KafkaAdminServiceMock(
@@ -76,7 +76,7 @@ class KafkaAdminServiceMock(
     override fun setConsumerOffset(request: SetConsumerOffsetRequest) {
     }
 
-    override fun initCache() {
+    override fun initCache(resetData: Boolean) {
 
     }
 }

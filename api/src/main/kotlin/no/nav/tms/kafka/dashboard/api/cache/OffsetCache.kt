@@ -86,6 +86,16 @@ class OffsetCache(
         }
     }
 
+    fun resetCache() {
+        database.update {
+            queryOf("delete from offset_cache")
+        }
+
+        database.update {
+            queryOf("delete from last_cached_offset")
+        }
+    }
+
     fun initTopicInfo() {
         topics = kafkaReader.appConfig.topics.map { config ->
             val partitions = kafkaReader.getPartitions(config.topicName)
@@ -312,35 +322,6 @@ class OffsetCache(
                 )
             }
         )
-    }
-
-    private fun insertEntry(entry: CacheEntry) {
-        database.insert {
-            queryOf(
-                """
-            insert into offset_cache(
-                topicId,
-                recordKey, 
-                recordPartition,
-                recordOffset,
-                createdAt
-            ) values (
-                :topicId,
-                :recordKey,
-                :partition,
-                :offset,
-                :createdAt
-            )
-        """,
-                mapOf(
-                    "topicId" to entry.topicId,
-                    "recordKey" to entry.key,
-                    "partition" to entry.partition,
-                    "offset" to entry.offset,
-                    "createdAt" to entry.createdAt
-                )
-            )
-        }
     }
 
     private fun topicId(topicName: String): Int {

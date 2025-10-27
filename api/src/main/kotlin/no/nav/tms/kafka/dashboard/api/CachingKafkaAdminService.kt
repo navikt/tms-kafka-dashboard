@@ -246,7 +246,12 @@ class CachingKafkaAdminService(
         )
     }
 
-    override fun initCache() {
+    override fun initCache(resetData: Boolean) {
+        if (resetData) {
+            log.info { "Deleting existing offset data" }
+            offsetCache.resetCache()
+        }
+
         offsetCache.initTopicInfo()
         offsetCache.start()
     }
