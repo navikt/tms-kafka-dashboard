@@ -7,7 +7,6 @@ import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.apache.kafka.clients.consumer.OffsetAndMetadata
 import org.apache.kafka.common.TopicPartition
-import org.slf4j.LoggerFactory
 import java.time.Duration
 import java.time.ZonedDateTime
 import java.util.*
@@ -38,6 +37,8 @@ class KafkaReader(val appConfig: KafkaAppConfig) {
             while (kafkaRecords.size < maxRecords) {
                 val consumerRecords = consumer.poll(Duration.ofMillis(500))
 
+                log.info { "Polled ${consumerRecords.count()} records." }
+
                 // No more records to consume right now
                 if (consumerRecords.isEmpty) {
                     break
@@ -51,7 +52,7 @@ class KafkaReader(val appConfig: KafkaAppConfig) {
                 }
             }
 
-            log.info { "Read ${kafkaRecords.size} records for search {topicName: $topicName, partition: $partition, offset: $offset, maxRecords: $maxRecords}" }
+            log.info { "Read ${kafkaRecords.size} records for request {topicName: $topicName, partition: $partition, offset: $offset, maxRecords: $maxRecords}" }
 
             return kafkaRecords.take(maxRecords)
         }

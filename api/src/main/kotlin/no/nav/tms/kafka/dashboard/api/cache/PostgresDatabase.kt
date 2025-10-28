@@ -7,8 +7,6 @@ import org.flywaydb.core.Flyway
 
 class PostgresDatabase : Database {
 
-    private val env = PgEnv()
-
     override val dataSource = hikariFromLocalDb()
 
     fun runFlywayMigrations() {
@@ -22,15 +20,15 @@ class PostgresDatabase : Database {
     companion object {
 
         fun hikariFromLocalDb(): HikariDataSource {
-            val config = hikariCommonConfig(PgEnv())
+            val config = hikariCommonConfig()
             config.validate()
             return HikariDataSource(config)
         }
 
-        private fun hikariCommonConfig(env: PgEnv): HikariConfig {
+        private fun hikariCommonConfig(): HikariConfig {
             val config = HikariConfig().apply {
                 driverClassName = "org.postgresql.Driver"
-                jdbcUrl = env.jdbcUrl
+                jdbcUrl = getEnvVar("DB_JDBC_URL")
                 minimumIdle = 1
                 maxLifetime = 1800000
                 maximumPoolSize = 5
@@ -43,8 +41,4 @@ class PostgresDatabase : Database {
             return config
         }
     }
-
-    private data class PgEnv(
-        val jdbcUrl: String = getEnvVar("DB_JDBC_URL")
-    )
 }

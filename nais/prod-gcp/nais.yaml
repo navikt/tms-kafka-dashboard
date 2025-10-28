@@ -62,8 +62,6 @@ spec:
           hour: 4
         cascadingDelete: true
   env:
-    - name: RESET_CACHE
-      value: "true"
     - name: KAFKA_APP_CONFIG
       value: >
         {
