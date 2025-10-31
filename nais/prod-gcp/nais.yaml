@@ -42,6 +42,7 @@ spec:
       autoLogin: true
   ingresses:
     - https://tms-kafka-dashboard.intern.nav.no
+    - https://tms-kafka-manager.intern.nav.no
   kafka:
     pool: nav-prod
   gcp:
