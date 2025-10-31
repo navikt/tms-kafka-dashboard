@@ -121,7 +121,7 @@ class KafkaReader(val appConfig: KafkaAppConfig) {
         val keyDesType = topicConfig.keyDeserializerType
         val valueDesType = topicConfig.valueDeserializerType
 
-        val properties = KafkaPropertiesFactory.createAivenConsumerProperties(keyDesType, valueDesType)
+        val properties = KafkaPropertiesFactory.createKafkaConsumerProperties(keyDesType, valueDesType)
 
         if (consumerGroupId != null) {
             properties[ConsumerConfig.GROUP_ID_CONFIG] = consumerGroupId

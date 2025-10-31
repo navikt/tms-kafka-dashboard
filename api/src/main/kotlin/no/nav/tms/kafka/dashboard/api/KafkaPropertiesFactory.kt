@@ -12,7 +12,7 @@ object KafkaPropertiesFactory {
 
     private val environment = EnvWrapper.getEnv()
 
-    fun createAivenConsumerProperties(
+    fun createKafkaConsumerProperties(
         keyDeserializerType: DeserializerType,
         valueDeserializerType: DeserializerType
     ) = Properties().apply {

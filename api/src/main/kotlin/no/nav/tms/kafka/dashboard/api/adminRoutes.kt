@@ -54,7 +54,7 @@ fun Route.adminRoutes(
 }
 
 
-const val MAX_KAFKA_RECORDS = 100
+const val MAX_KAFKA_RECORDS = 250
 
 data class ReadTopicRequest(
     val topicName: String,
