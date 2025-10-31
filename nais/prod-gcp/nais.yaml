@@ -26,7 +26,7 @@ spec:
     max: 1
   resources:
     limits:
-      memory: 1024Mi
+      memory: 768Mi
     requests:
       cpu: 20m
       memory: 128Mi
@@ -41,9 +41,9 @@ spec:
       enabled: true
       autoLogin: true
   ingresses:
-    - https://tms-kafka-dashboard.intern.dev.nav.no
+    - https://tms-kafka-dashboard.intern.nav.no
   kafka:
-    pool: nav-dev
+    pool: nav-prod
   gcp:
     sqlInstances:
       - name: kafka-offset-cache

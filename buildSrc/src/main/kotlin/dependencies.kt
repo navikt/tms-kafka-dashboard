@@ -1,9 +1,20 @@
 import default.DependencyGroup
+import default.FlywayDefaults
 
-object Avro: DependencyGroup {
-    override val groupId get() = "io.confluent"
-    override val version get() = "7.6.0"
+object Hsql: DependencyGroup {
+    override val groupId get() = "org.hsqldb"
+    override val version get() = "2.7.4"
 
-    val avroSerializer get() = dependency("kafka-avro-serializer")
-    val schemaRegistry get() = dependency("kafka-schema-registry")
+    val hsqldb = dependency("hsqldb")
+}
+
+object FlywayHsql: FlywayDefaults {
+    val hsqldb get() = dependency("flyway-database-hsqldb")
+}
+
+object Ulid: DependencyGroup {
+    override val groupId: String = "com.github.f4b6a3"
+    override val version: String = "5.2.3"
+
+    val creator = dependency("ulid-creator")
 }
