@@ -213,7 +213,7 @@ function SetConsumerOffsetCard(props: { availableTopics: string[] }) {
 				Setter offset til en consumer for en topic+partisjon. Det er viktig å vite at selv om offsetet blir
 				endret, så vil ikke consumere plukke opp endringen i offset før de er startet på nytt. Hvis en consumer
 				committer et nytt offset før den har blitt startet på nytt og fått hentet inn endringen, så vil den
-				overskrive offsetet fra kafka-manager.
+				overskrive offsetet fra kafka-dashboard.
 			</BodyShort>
 
 			<TopicSelect availableTopics={props.availableTopics} onTopicChanged={setTopicNameField} />

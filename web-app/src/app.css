@@ -13,7 +13,7 @@ html *,
 body * {
 	box-sizing: border-box;
 }
-.kafka-manager {
+.kafka-dashboard {
 	display: grid;
 	grid-template-rows: min-content 1fr;
 }

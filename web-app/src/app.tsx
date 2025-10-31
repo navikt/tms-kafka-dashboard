@@ -7,7 +7,7 @@ import { Header } from './component/header/header';
 
 function App() {
 	return (
-		<div className="app kafka-manager">
+		<div className="app kafka-dashboard">
 			<Header />
 			<main>
 				<KafkaAdmin />
