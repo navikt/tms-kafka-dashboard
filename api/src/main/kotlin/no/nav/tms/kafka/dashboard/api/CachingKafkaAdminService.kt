@@ -79,7 +79,7 @@ class CachingKafkaAdminService(
     private fun getWithinOffsetPartitionRange(topicName: String, offsetRange: OffsetCache.PartitionOffsetRange, maxRecords: Int, filter: RecordFilter?): List<KafkaRecord> {
 
         val records = mutableListOf<KafkaRecord>()
-        val batchSize = max(kafkaReadBatchSize, offsetRange.length)
+        val batchSize = min(kafkaReadBatchSize, offsetRange.length)
 
         var currentOffset = offsetRange.offsetStart
 
