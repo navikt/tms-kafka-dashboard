@@ -41,7 +41,7 @@ class KafkaReader(val appConfig: KafkaAppConfig) {
             while (kafkaRecords.size < maxRecords) {
                 val consumerRecords = consumer.poll(Duration.ofMillis(500))
 
-                log.info { "Polled ${consumerRecords.count()} records." }
+                log.debug { "Polled ${consumerRecords.count()} records." }
 
                 // No more records to consume right now
                 if (consumerRecords.isEmpty) {
@@ -56,7 +56,7 @@ class KafkaReader(val appConfig: KafkaAppConfig) {
                 }
             }
 
-            log.info { "Read ${kafkaRecords.size} records for request {topicName: $topicName, partition: $partition, offset: $offset, maxRecords: $maxRecords}" }
+            log.debug { "Read ${kafkaRecords.size} records for request {topicName: $topicName, partition: $partition, offset: $offset, maxRecords: $maxRecords}" }
 
             return kafkaRecords.take(maxRecords)
         }
