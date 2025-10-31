@@ -14,13 +14,14 @@ object KafkaPropertiesFactory {
 
     fun createKafkaConsumerProperties(
         keyDeserializerType: DeserializerType,
-        valueDeserializerType: DeserializerType
+        valueDeserializerType: DeserializerType,
+        maxPollRecords: Int
     ) = Properties().apply {
 
         configureBrokers(environment)
         configureSecurity(environment)
 
-        put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, MAX_KAFKA_RECORDS)
+        put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, maxPollRecords)
         put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false")
         put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest")
         put(ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG, 300_000)

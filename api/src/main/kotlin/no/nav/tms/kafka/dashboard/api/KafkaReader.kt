@@ -10,6 +10,8 @@ import org.apache.kafka.common.TopicPartition
 import java.time.Duration
 import java.time.ZonedDateTime
 import java.util.*
+import kotlin.math.max
+import kotlin.math.min
 
 class KafkaReader(val appConfig: KafkaAppConfig) {
 
@@ -25,7 +27,9 @@ class KafkaReader(val appConfig: KafkaAppConfig) {
             return emptyList()
         }
 
-        val kafkaConsumer = createKafkaConsumerForTopic(null, topicName)
+        val maxPollRecords = min(500, maxRecords)
+
+        val kafkaConsumer = createKafkaConsumerForTopic(null, topicName, maxPollRecords)
         val kafkaRecords = mutableListOf<KafkaRecord>()
 
         kafkaConsumer.use { consumer ->
@@ -104,10 +108,11 @@ class KafkaReader(val appConfig: KafkaAppConfig) {
 
     private fun createKafkaConsumerForTopic(
         consumerGroupId: String?,
-        topicName: String
+        topicName: String,
+        maxPollRecords: Int = 100
     ): KafkaConsumer<Any?, Any?> {
         val topicConfig = findTopicConfigOrThrow(topicName)
-        val properties = createPropertiesForTopic(consumerGroupId, topicConfig)
+        val properties = createPropertiesForTopic(consumerGroupId, topicConfig, maxPollRecords)
 
         return KafkaConsumer(properties)
     }
@@ -117,11 +122,11 @@ class KafkaReader(val appConfig: KafkaAppConfig) {
             ?: throw IllegalArgumentException("Could not find config for topic")
     }
 
-    private fun createPropertiesForTopic(consumerGroupId: String?, topicConfig: TopicConfig): Properties {
+    private fun createPropertiesForTopic(consumerGroupId: String?, topicConfig: TopicConfig, maxPollRecords: Int): Properties {
         val keyDesType = topicConfig.keyDeserializerType
         val valueDesType = topicConfig.valueDeserializerType
 
-        val properties = KafkaPropertiesFactory.createKafkaConsumerProperties(keyDesType, valueDesType)
+        val properties = KafkaPropertiesFactory.createKafkaConsumerProperties(keyDesType, valueDesType, maxPollRecords)
 
         if (consumerGroupId != null) {
             properties[ConsumerConfig.GROUP_ID_CONFIG] = consumerGroupId
