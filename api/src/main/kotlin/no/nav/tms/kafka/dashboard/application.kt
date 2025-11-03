@@ -51,7 +51,7 @@ fun main() {
             offsetCache = offsetCache,
             kafkaReadBatchSize = IntEnvVar.getEnvVarAsInt("KAFKA_READ_BATCH_SIZE", 1000)
         )
-        webAppLocation = "public"
+        webAppLocation = "app/public"
         authFunction = {
             authentication {
                 azure {
