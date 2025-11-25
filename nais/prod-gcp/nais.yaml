@@ -52,8 +52,8 @@ spec:
         tier: db-f1-micro
         diskType: SSD
         highAvailability: false
-        diskSize: 10
-        diskAutoresize: false
+        diskSize: 20
+        diskAutoresize: true
         autoBackupHour: 3
         databases:
           - name: kafka-offset-cache
