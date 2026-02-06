@@ -6,17 +6,19 @@ import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
+import no.nav.tms.common.postgres.Postgres
 import no.nav.tms.common.util.config.BooleanEnvVar.getEnvVarAsBoolean
 import no.nav.tms.common.util.config.IntEnvVar
 import no.nav.tms.common.util.config.StringEnvVar
+import no.nav.tms.common.util.config.StringEnvVar.getEnvVar
 import no.nav.tms.kafka.dashboard.api.CachingKafkaAdminService
 import no.nav.tms.kafka.dashboard.api.KafkaAdminService
 import no.nav.tms.kafka.dashboard.api.KafkaAdminServiceMock
 import no.nav.tms.kafka.dashboard.api.KafkaReader
 import no.nav.tms.kafka.dashboard.api.cache.OffsetCache
-import no.nav.tms.kafka.dashboard.api.cache.PostgresDatabase
 import no.nav.tms.token.support.azure.validation.azure
 import no.nav.tms.token.support.azure.validation.mock.azureMock
+import org.flywaydb.core.Flyway
 
 fun main() {
 
@@ -24,7 +26,7 @@ fun main() {
     val webAppLocation: String
     val authFunction: Application.() -> Unit
 
-    val database = PostgresDatabase()
+    val cacheInit: () -> Unit
 
     if(getEnvVarAsBoolean("LOCAL_DEV_MODE", false)) {
         adminService = KafkaAdminServiceMock(getKafkaConfig())
@@ -37,7 +39,9 @@ fun main() {
                 }
             }
         }
+        cacheInit = {}
     } else {
+        val database = Postgres.connectToJdbcUrl(getEnvVar("DB_JDBC_URL"))
 
         val kafkaReader = KafkaReader(getKafkaConfig())
         val offsetCache = OffsetCache(
@@ -59,6 +63,14 @@ fun main() {
                 }
             }
         }
+        cacheInit = {
+            Flyway.configure()
+                .dataSource(database.dataSource)
+                .load()
+                .migrate()
+
+            adminService.initCache(getEnvVarAsBoolean("RESET_CACHE", false))
+        }
     }
 
     embeddedServer(
@@ -67,8 +79,7 @@ fun main() {
             kafkaDashboard(adminService, webAppLocation, authFunction)
 
             monitor.subscribe(ApplicationStarted) {
-                database.runFlywayMigrations()
-                adminService.initCache(getEnvVarAsBoolean("RESET_CACHE", false))
+                cacheInit()
             }
         },
         configure = {

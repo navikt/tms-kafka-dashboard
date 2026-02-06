@@ -62,9 +62,9 @@ data class ReadTopicRequest(
     val topicPartition: Int?,
     val maxRecords: Int,
     val fromOffset: Long?,
-    @JsonAlias("filter") private val _filter: RecordFilter?,
-    @JsonAlias("fromTime") private val _fromTime: String?,
-    @JsonAlias("toTime") private val _toTime: String?,
+    @param:JsonAlias("filter") private val _filter: RecordFilter?,
+    @param:JsonAlias("fromTime") private val _fromTime: String?,
+    @param:JsonAlias("toTime") private val _toTime: String?,
     val timezoneOffsetMinutes: Int
 ) {
     val filter = if (_filter == null || (_filter.key.isNullOrBlank() && _filter.value.isNullOrBlank())) {
