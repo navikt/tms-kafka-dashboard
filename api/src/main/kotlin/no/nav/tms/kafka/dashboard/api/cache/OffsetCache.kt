@@ -3,6 +3,7 @@ package no.nav.tms.kafka.dashboard.api.cache
 import com.github.f4b6a3.ulid.Ulid
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotliquery.queryOf
+import no.nav.tms.common.postgres.PostgresDatabase
 import no.nav.tms.common.util.scheduling.PeriodicJob
 import no.nav.tms.kafka.dashboard.api.KafkaReader
 import no.nav.tms.kafka.dashboard.api.KafkaRecord
@@ -14,7 +15,7 @@ import java.util.*
 import java.util.concurrent.atomic.AtomicBoolean
 
 class OffsetCache(
-    private val database: Database,
+    private val database: PostgresDatabase,
     private val kafkaReader: KafkaReader,
     cacheWriteBatchSize: Int,
     interval: Duration = Duration.ofMinutes(1),
@@ -48,7 +49,7 @@ class OffsetCache(
                     offsetStart = it.long("min_offset"),
                     offsetEnd = it.long("max_offset"),
                 )
-            }.asSingle
+            }
         }
     }
 
@@ -82,7 +83,7 @@ class OffsetCache(
                     offsetStart = it.long("min_offset"),
                     offsetEnd = it.long("max_offset"),
                 )
-            }.asList
+            }
         }
     }
 
@@ -246,7 +247,7 @@ class OffsetCache(
                 )
             ).map {
                 it.long("lastOffset")
-            }.asSingle
+            }
         }
     }
 
@@ -277,7 +278,7 @@ class OffsetCache(
     }
 
     private fun insertTopic(topic: String): Int {
-        database.insert {
+        database.update {
             queryOf(
                 "insert into topic(name) values (:name) on conflict do nothing",
                 mapOf("name" to topic)
@@ -290,12 +291,12 @@ class OffsetCache(
                 mapOf("name" to topic)
             ).map {
                 it.int("id")
-            }.asSingle
+            }
         }
     }
 
     private fun insertEntries(entries: List<CacheEntry>) {
-        database.batch(
+        database.batchUpdate(
                 """
             insert into offset_cache(
                 topicId,

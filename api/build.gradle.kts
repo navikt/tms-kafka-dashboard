@@ -28,6 +28,7 @@ dependencies {
     implementation(Flyway.core)
     implementation(Flyway.postgres)
     implementation(Hikari.cp)
+    implementation(JacksonDatatype.datatypeJsr310)
     implementation(Kafka.clients)
     implementation(KotlinLogging.logging)
     implementation(KotliQuery.kotliquery)
@@ -41,8 +42,9 @@ dependencies {
     implementation(Ktor.Serialization.jackson)
     implementation(Postgresql.postgresql)
     implementation(Ulid.creator)
-    implementation(TmsCommonLib.utils)
     implementation(TmsCommonLib.metrics)
+    implementation(TmsCommonLib.postgres)
+    implementation(TmsCommonLib.utils)
     implementation(TmsKtorTokenSupport.azureValidation)
     implementation(TmsKtorTokenSupport.azureValidationMock)
 
