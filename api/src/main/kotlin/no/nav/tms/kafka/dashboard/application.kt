@@ -16,8 +16,8 @@ import no.nav.tms.kafka.dashboard.api.KafkaAdminService
 import no.nav.tms.kafka.dashboard.api.KafkaAdminServiceMock
 import no.nav.tms.kafka.dashboard.api.KafkaReader
 import no.nav.tms.kafka.dashboard.api.cache.OffsetCache
-import no.nav.tms.token.support.azure.validation.azure
-import no.nav.tms.token.support.azure.validation.mock.azureMock
+import no.nav.tms.token.support.entraid.token.verification.entraId
+import no.nav.tms.token.support.entraid.token.verification.mock.entraIdMock
 import org.flywaydb.core.Flyway
 
 fun main() {
@@ -33,9 +33,8 @@ fun main() {
         webAppLocation = "web-app/dist"
         authFunction = {
             authentication {
-                azureMock {
-                    alwaysAuthenticated = true
-                    setAsDefault = true
+                entraIdMock {
+                    enableDefaultAuthentication()
                 }
             }
         }
@@ -58,8 +57,8 @@ fun main() {
         webAppLocation = "app/public"
         authFunction = {
             authentication {
-                azure {
-                    setAsDefault = true
+                entraId {
+
                 }
             }
         }

@@ -45,8 +45,8 @@ dependencies {
     implementation(TmsCommonLib.metrics)
     implementation(TmsCommonLib.postgres)
     implementation(TmsCommonLib.utils)
-    implementation(TmsKtorTokenSupport.azureValidation)
-    implementation(TmsKtorTokenSupport.azureValidationMock)
+    implementation(TmsKtorTokenSupport.entraIdTokenVerification)
+    implementation(TmsKtorTokenSupport.entraIdTokenVerificationMock)
 
     testImplementation(JunitPlatform.launcher)
     testImplementation(JunitJupiter.api)
