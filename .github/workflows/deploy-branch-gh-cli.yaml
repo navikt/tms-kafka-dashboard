@@ -51,6 +51,8 @@ jobs:
 
       - name: Installer pnpm dependencies
         run: pnpm install --frozen-lockfile  --strict-peer-dependencies=false --prefix web-app
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.READER_TOKEN }}
 
       - name: Bygg frontend-filer
         run: pnpm --dir web-app build
