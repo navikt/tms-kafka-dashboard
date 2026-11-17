@@ -4,7 +4,6 @@ data class KafkaAppConfig (
     val topics: List<TopicConfig> = emptyList(),
     val applications: List<ApplicationConfig> = emptyList()
 ) {
-    private val topicConfigs = topics.associateBy { it.topicName }
 
     init {
         val appsWithUnknownTopics = applications.filter { app ->
@@ -17,10 +16,6 @@ data class KafkaAppConfig (
             val invalidApps = appsWithUnknownTopics.joinToString { it.name }
             "Én eller flere applikasjoner peker på topics som ikke er definert: [$invalidApps]"
         }
-    }
-
-    fun config(topic: String): TopicConfig {
-        return topicConfigs[topic]!!
     }
 }
 
