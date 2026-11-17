@@ -1,11 +1,11 @@
-import React from 'react';
+import type { ReactNode } from 'react';
 import cls from 'classnames';
 import './card.css';
 import { Heading } from '@navikt/ds-react';
 
 interface CardProps {
 	title?: string;
-	children: any;
+	children: ReactNode;
 	className?: string;
 	innholdClassName?: string;
 }

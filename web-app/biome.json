@@ -1,0 +1,22 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.6.8/schema.json",
+  "files": {
+    "includes": ["src/**/*.ts", "src/**/*.tsx"]
+  },
+  "formatter": {
+    "enabled": false
+  },
+  "assist": {
+    "enabled": false
+  },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "preset": "recommended",
+      "suspicious": {
+        "noConsole": "error",
+        "noEmptyBlockStatements": "error"
+      }
+    }
+  }
+}

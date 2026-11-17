@@ -1,4 +1,3 @@
-import React from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './app';
 import * as dayjs from 'dayjs';
@@ -25,7 +24,7 @@ if (import.meta.env.DEV) {
 
 		mountReactApp();
 	} catch (e) {
-		// tslint:disable-next-line:no-console
+		// biome-ignore lint/suspicious/noConsole: Report failures to start the development mock server.
 		console.error('Unable to setup mocked API endpoints', e);
 	}
 } else {

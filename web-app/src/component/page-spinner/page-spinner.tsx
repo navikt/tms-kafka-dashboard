@@ -1,4 +1,3 @@
-import React from 'react';
 import './page-spinner.css';
 import { Loader } from '@navikt/ds-react';
 

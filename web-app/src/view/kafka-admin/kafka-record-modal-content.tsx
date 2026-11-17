@@ -1,4 +1,3 @@
-import React from 'react';
 import './kafka-record-modal-content.css';
 import { isJson, NO_OP } from '../../utils';
 import { BodyShort, Label, Textarea, TextField } from '@navikt/ds-react';
@@ -26,13 +25,11 @@ export function KafkaRecordModalContent(props: { record: KafkaRecord | null }) {
 				<Label htmlFor="label">Headers</Label>
 				{headers.length > 0 ? (
 					<ul>
-						{headers.map((header, idx) => {
-							return (
-								<li key={idx}>
-									Name={header.name} Value={header.value}
-								</li>
-							);
-						})}
+						{headers.map((header, idx) => (
+							<li key={idx}>
+								Name={header.name} Value={header.value}
+							</li>
+						))}
 					</ul>
 				) : (
 					<BodyShort>No headers</BodyShort>
