@@ -50,7 +50,7 @@ jobs:
         run: ./gradlew assemble
 
       - name: Installer pnpm dependencies
-        run: pnpm --dir web-app install --frozen-lockfile
+        run: pnpm install --frozen-lockfile  --strict-peer-dependencies=false --prefix web-app
 
       - name: Bygg frontend-filer
         run: pnpm --dir web-app build
