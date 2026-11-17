@@ -43,11 +43,13 @@ jobs:
         uses: pnpm/action-setup@v4
         with:
           version: 10
+          package_json_file: web-app/package.json
 
       - name: Setup node
         uses: actions/setup-node@v4
         with:
           node-version: 22
+          registry-url: https://npm.pkg.github.com
           cache: 'pnpm'
           cache-dependency-path: 'web-app/pnpm-lock.yaml'
 
@@ -55,7 +57,9 @@ jobs:
         run: ./gradlew build
 
       - name: Installer pnpm dependencies
-        run: pnpm --dir web-app install --frozen-lockfile
+        run:  pnpm install --frozen-lockfile  --strict-peer-dependencies=false --prefix web-app
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.READER_TOKEN}}
 
       - name: Kjør web-app tester
         run: pnpm --dir web-app test
