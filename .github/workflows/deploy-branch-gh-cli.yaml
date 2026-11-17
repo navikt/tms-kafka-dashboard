@@ -38,11 +38,13 @@ jobs:
         uses: pnpm/action-setup@v4
         with:
           version: 10
+          package_json_file: web-app/package.json
 
       - name: Setup node
         uses: actions/setup-node@v4
         with:
           node-version: 22
+          registry-url: https://npm.pkg.github.com
           cache: 'pnpm'
           cache-dependency-path: 'web-app/pnpm-lock.yaml'
 
@@ -52,7 +54,7 @@ jobs:
       - name: Installer pnpm dependencies
         run: pnpm install --frozen-lockfile  --strict-peer-dependencies=false --prefix web-app
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.READER_TOKEN}}
 
       - name: Bygg frontend-filer
         run: pnpm --dir web-app build
