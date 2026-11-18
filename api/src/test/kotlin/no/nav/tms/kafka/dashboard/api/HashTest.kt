@@ -4,7 +4,7 @@ import io.kotest.matchers.shouldBe
 import org.apache.kafka.clients.producer.internals.BuiltInPartitioner
 import org.junit.jupiter.api.Test
 
-class HashTest {
+class  HashTest {
     @Test
     fun partitiontest() {
         "5161161e-eac9-4dd0-ba8d-c63cae77437e".toByteArray().let { BuiltInPartitioner.partitionForKey(it, 4) } % 4 shouldBe 0

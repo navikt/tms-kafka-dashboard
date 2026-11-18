@@ -7,9 +7,6 @@
 .kafka-admin__col > *:not(:last-child) {
   margin-bottom: 2rem;
 }
-.kafka-admin__spinner {
-  margin: 2rem auto auto;
-}
 .kafka-record-value {
   max-width: 400px;
   white-space: nowrap;

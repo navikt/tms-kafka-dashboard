@@ -80,7 +80,7 @@ data class ReadTopicRequest(
     val toTime: ZonedDateTime? = _toTime?.takeUnless { it.isBlank() }?.let { parseTime(it) }
 
     fun validate(): ReadTopicRequest {
-        if (maxRecords < 0 || maxRecords > MAX_KAFKA_RECORDS) {
+        if (maxRecords !in 0..MAX_KAFKA_RECORDS) {
             throw IllegalArgumentException("maxRecords must be between 0 and $MAX_KAFKA_RECORDS")
         } else {
             return this

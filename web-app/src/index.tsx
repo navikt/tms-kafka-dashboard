@@ -1,7 +1,6 @@
-import React from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './app';
-import * as dayjs from 'dayjs';
+import dayjs from 'dayjs';
 import 'dayjs/locale/nb';
 
 dayjs.locale('nb');
@@ -18,14 +17,13 @@ if (import.meta.env.DEV) {
 
 	try {
 		await worker.start({
-			onUnhandledRequest: 'bypass',
-			serviceWorker: { url: import.meta.env.BASE_URL + 'mockServiceWorker.js' },
-			waitUntilReady: true
+			onUnhandledFrame: 'bypass',
+			serviceWorker: { url: import.meta.env.BASE_URL + 'mockServiceWorker.js' }
 		});
 
 		mountReactApp();
 	} catch (e) {
-		// tslint:disable-next-line:no-console
+		// biome-ignore lint/suspicious/noConsole: Report failures to start the development mock server.
 		console.error('Unable to setup mocked API endpoints', e);
 	}
 } else {

@@ -4,15 +4,6 @@ export const axiosInstance = axios.create({
 	withCredentials: true
 });
 
-export interface User {
-	ident: string;
-	harTilgang: boolean;
-}
-
-export function me(): AxiosPromise<User> {
-	return axiosInstance.get('/api/auth/me');
-}
-
 export interface ReadFromTopicRequest {
 	topicName: string;
 	readFromPosition: string;

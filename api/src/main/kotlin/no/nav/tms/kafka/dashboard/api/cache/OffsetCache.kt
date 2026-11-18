@@ -342,10 +342,6 @@ class OffsetCache(
         val partitions: List<Int>
     )
 
-    data class PartitionOffset(
-        val partition: Int,
-        val offset: Long
-    )
 
     data class PartitionOffsetRange(
         val partition: Int,

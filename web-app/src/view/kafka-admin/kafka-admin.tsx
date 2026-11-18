@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useEffect, useRef, useState } from 'react';
+import { ChangeEvent, useEffect, useRef, useState } from 'react';
 import { errorToast, successToast, warningToast } from '../../utils/toast-utils';
 import { Card } from '../../component/card/card';
 import { BodyShort, Button, Loader, Modal, RadioGroup, Select, TextField, Radio } from '@navikt/ds-react';
@@ -68,13 +68,11 @@ function TopicSelect(props: { availableTopics: string[]; onTopicChanged: (topic:
 	return (
 		<Select label="Topic name" value={selectedTopic} onChange={handleTopicChanged}>
 			<option value={NO_TOPIC}>Choose a topic</option>
-			{sortedTopics.map((topic, idx) => {
-				return (
-					<option key={idx} value={topic}>
-						{topic}
-					</option>
-				);
-			})}
+			{sortedTopics.map((topic, idx) => (
+				<option key={idx} value={topic}>
+					{topic}
+				</option>
+			))}
 		</Select>
 	);
 }
@@ -119,13 +117,11 @@ function ConsumerOffsetsCard(props: { availableTopics: string[] }) {
 
 			{topicPartitionOffsets.length > 0 && (
 				<ul>
-					{topicPartitionOffsets.map((tpo, idx) => {
-						return (
-							<li key={idx}>
-								Partition={tpo.topicPartition} Offset={tpo.offset}
-							</li>
-						);
-					})}
+					{topicPartitionOffsets.map((tpo, idx) => (
+						<li key={idx}>
+							Partition={tpo.topicPartition} Offset={tpo.offset}
+						</li>
+					))}
 				</ul>
 			)}
 		</Card>
@@ -264,41 +260,24 @@ function ReadFromTopicCard(props: { availableTopics: string[] }) {
 
 	const [startTimeMs, setStartTimeMs] = useState<number | null>(null);
 	const [timeTakenMs, setTimeTakenMs] = useState<number>(0);
-	const timerRef = useRef<number | null>();
+	const timerRef = useRef<number | null>(null);
 
-	async function handleReadFromTopic() {
+	function handleReadFromTopic() {
 		if (topicNameField == null) {
 			errorToast('Topic is missing');
 			return;
 		}
 
-		let topicPartition;
-
-		if (topicAllPartitionsField) {
-			topicPartition = null
-		} else {
-			topicPartition = parseInt(topicPartitionField, 10);
-		}
-
-		const maxRecords = parseInt(maxRecordsField, 10);
-
 		setRecordsFromTopic([]);
 		setStartTimeMs(Date.now());
 		setIsLoading(true);
 
-		let fetchFrom = fetchFromField;
-		let fetchFromOffset = null;
-
-		if (fetchFromField === FetchFrom.OFFSET) {
-			fetchFromOffset = parseInt(fromOffsetField, 10);
-		}
-
 		const request: ReadFromTopicRequest = {
 			topicName: topicNameField,
-			topicPartition,
-			fromOffset: fetchFromOffset,
-			readFromPosition: fetchFrom,
-			maxRecords,
+			topicPartition: topicAllPartitionsField ? null : parseInt(topicPartitionField, 10),
+			fromOffset: fetchFromField === FetchFrom.OFFSET ? parseInt(fromOffsetField, 10) : null,
+			readFromPosition: fetchFromField,
+			maxRecords: parseInt(maxRecordsField, 10),
 			fromTime: fromTimeField,
 			toTime: toTimeField,
 			keyFilterText: keyFilterField,
@@ -355,14 +334,14 @@ function ReadFromTopicCard(props: { availableTopics: string[] }) {
 				<Radio value={false}>Specific partition</Radio>
 			</RadioGroup>
 
-			{ !topicAllPartitionsField ? (
+			{!topicAllPartitionsField ? (
 				<TextField
-				label="Topic partition number (first partition starts at 0)"
-				type="number"
-				value={topicPartitionField}
-				onChange={e => setTopicPartitionField(e.target.value)}
+					label="Topic partition number (first partition starts at 0)"
+					type="number"
+					value={topicPartitionField}
+					onChange={e => setTopicPartitionField(e.target.value)}
 				/>
-			) : null }
+			) : null}
 
 			<Select
 				label="Fetch records from"
@@ -385,19 +364,18 @@ function ReadFromTopicCard(props: { availableTopics: string[] }) {
 			) : null}
 
 			{fetchFromField === FetchFrom.TIMEWINDOW ? (
-				<TextField
-					label="From (YYYY-MM-DD hh:mm:ss)"
-					value={fromTimeField}
-					onChange={e => setFromTimeField(e.target.value)}
-				/>
-			) : null}
-
-			{fetchFromField === FetchFrom.TIMEWINDOW ? (
-				<TextField
-					label="To (YYYY-MM-DD hh:mm:ss)"
-					value={toTimeField}
-					onChange={e => setToTimeField(e.target.value)}
-				/>
+				<>
+					<TextField
+						label="From (YYYY-MM-DD hh:mm:ss)"
+						value={fromTimeField}
+						onChange={e => setFromTimeField(e.target.value)}
+					/>
+					<TextField
+						label="To (YYYY-MM-DD hh:mm:ss)"
+						value={toTimeField}
+						onChange={e => setToTimeField(e.target.value)}
+					/>
+				</>
 			) : null}
 
 			<TextField
@@ -441,28 +419,29 @@ function ReadFromTopicCard(props: { availableTopics: string[] }) {
 						</tr>
 					</thead>
 					<tbody>
-						{recordsFromTopic
-							.map(record => {
-								return (
-									<tr
-										key={`${record.partition}-${record.offset}`}
-										onClick={() => setClickedRecord(record)}
-										className="kafka-record-row"
-									>
-										<td>{record.partition}</td>
-										<td>{record.offset}</td>
-										<td>{record.key || 'NO_KEY'}</td>
-										<td className="kafka-record-value">{record.value}</td>
-									</tr>
-								);
-							})}
+						{recordsFromTopic.map(record => (
+							<tr
+								key={`${record.partition}-${record.offset}`}
+								onClick={() => setClickedRecord(record)}
+								className="kafka-record-row"
+							>
+								<td>{record.partition}</td>
+								<td>{record.offset}</td>
+								<td>{record.key || 'NO_KEY'}</td>
+								<td className="kafka-record-value">{record.value}</td>
+							</tr>
+						))}
 					</tbody>
 				</table>
 			) : null}
-			<Modal open={clickedRecord !== null} onClose={() => setClickedRecord(null)}>
-				<Modal.Content>
+			<Modal
+				open={clickedRecord !== null}
+				onClose={() => setClickedRecord(null)}
+				header={{ heading: 'Kafka record' }}
+			>
+				<Modal.Body>
 					<KafkaRecordModalContent record={clickedRecord} />
-				</Modal.Content>
+				</Modal.Body>
 			</Modal>
 		</Card>
 	);

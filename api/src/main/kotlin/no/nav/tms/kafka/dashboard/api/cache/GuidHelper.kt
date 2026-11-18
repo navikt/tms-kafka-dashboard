@@ -14,8 +14,4 @@ object GuidHelper {
     fun isUuid(key: String): Boolean {
         return UUID_PATTERN.matches(key)
     }
-
-    fun isGuid(string: String): Boolean {
-        return isUuid(string) || isUlid(string)
-    }
 }

@@ -5,8 +5,7 @@ import no.nav.tms.kafka.dashboard.api.cache.OffsetCache
 import org.apache.kafka.clients.consumer.OffsetAndMetadata
 import org.apache.kafka.common.TopicPartition
 import java.time.ZonedDateTime
-import java.util.*
-import kotlin.math.max
+import java.util.Locale
 import kotlin.math.min
 
 class CachingKafkaAdminService(
@@ -41,7 +40,7 @@ class CachingKafkaAdminService(
                 filter = request.filter,
             )
 
-            return when (request.readFromPosition) {
+            when (request.readFromPosition) {
                 ReadFrom.End -> records.sortedByDescending { it.timestamp }
                 ReadFrom.TimeWindow -> records.filterByTime(request.fromTime, request.toTime)
                 else -> records
@@ -86,20 +85,14 @@ class CachingKafkaAdminService(
         var currentOffset = offsetRange.offsetStart
 
         while (currentOffset <= offsetRange.offsetEnd && records.size < maxRecords) {
-            kafkaReader.readFromPartition(
+            val batch = kafkaReader.readFromPartition(
                 topicName = topicName,
                 partition = offsetRange.partition,
                 offset = currentOffset,
                 maxRecords = batchSize,
-            ).let {
-                if (filter != null) {
-                    filterRecords(filter, it)
-                } else {
-                    it
-                }
-            }.let {
-                records.addAll(it)
-            }
+            )
+
+            records.addAll(batch.filteredBy(filter))
 
             currentOffset += batchSize
         }
@@ -127,15 +120,8 @@ class CachingKafkaAdminService(
 
     private fun getFromOffset(topicName: String, partition: Int?, offset: Long, maxRecords: Int, filter: RecordFilter?): List<KafkaRecord> {
         val records = mutableListOf<KafkaRecord>()
-
-        val batchSize = if (filter == null) {
-            min(maxRecords, kafkaReadBatchSize)
-        } else {
-            kafkaReadBatchSize
-        }
-
-        val partitions = partition?.let { listOf(it) }
-            ?: kafkaReader.getPartitions(topicName).map { it.partition() }
+        val batchSize = batchSize(maxRecords, filter)
+        val partitions = partitions(topicName, partition)
 
         var currentOffset = offset
         var recordsReadLastIter = Int.MAX_VALUE
@@ -144,21 +130,15 @@ class CachingKafkaAdminService(
             recordsReadLastIter = 0
 
             partitions.forEach { currentPartition ->
-                kafkaReader.readFromPartition(
+                val batch = kafkaReader.readFromPartition(
                     topicName = topicName,
                     partition = currentPartition,
                     offset = currentOffset,
                     maxRecords = batchSize,
-                ).let {
-                    recordsReadLastIter += it.size
-                    if (filter != null) {
-                        filterRecords(filter, it)
-                    } else {
-                        it
-                    }
-                }.let {
-                    records.addAll(it)
-                }
+                )
+
+                recordsReadLastIter += batch.size
+                records.addAll(batch.filteredBy(filter))
             }
 
             currentOffset += batchSize
@@ -172,15 +152,8 @@ class CachingKafkaAdminService(
     private fun getFromEnd(topicName: String, partition: Int?, maxRecords: Int, filter: RecordFilter?): List<KafkaRecord> {
 
         val records = mutableListOf<KafkaRecord>()
-
-        val batchSize = if (filter == null) {
-            min(maxRecords, kafkaReadBatchSize)
-        } else {
-            kafkaReadBatchSize
-        }
-
-        val partitions = partition?.let { listOf(it)}
-            ?: kafkaReader.getPartitions(topicName).map { it.partition() }
+        val batchSize = batchSize(maxRecords, filter)
+        val partitions = partitions(topicName, partition)
 
         val currentOffsets = partitions
             .associateWith { kafkaReader.lastRecordOffset(topicName, it) - batchSize }
@@ -203,23 +176,15 @@ class CachingKafkaAdminService(
 
                 val currentOffsetRangeEnd = readFromOffset + adjustedBatchSize
 
-                kafkaReader.readFromPartition(
+                val batch = kafkaReader.readFromPartition(
                     topicName = topicName,
                     partition = currentPartition,
                     offset = readFromOffset,
                     maxRecords = adjustedBatchSize,
-                )
-                .filter { it.offset < currentOffsetRangeEnd }
-                .let {
-                    recordsReadLastIter += it.size
-                    if (filter != null) {
-                        filterRecords(filter, it)
-                    } else {
-                        it
-                    }
-                }.let {
-                    records.addAll(it)
-                }
+                ).filter { it.offset < currentOffsetRangeEnd }
+
+                recordsReadLastIter += batch.size
+                records.addAll(batch.filteredBy(filter))
 
                 log.info { "Iteration: { records: ${records.size}, readThisIter: $recordsReadLastIter, batchSize: $batchSize }" }
 
@@ -271,29 +236,31 @@ class CachingKafkaAdminService(
                 .filterByContent(filter.value, exactMatch = false, KafkaRecord::value)
         }
 
-        private fun List<KafkaRecord>.filterByTime(start: ZonedDateTime?, end: ZonedDateTime?): List<KafkaRecord> {
-            return filter {
-                start == null || start < it.timestamp
-            }.filter {
-                end == null || end > it.timestamp
+        private fun List<KafkaRecord>.filterByTime(
+            start: ZonedDateTime?,
+            end: ZonedDateTime?
+        ): List<KafkaRecord> =
+            filter {
+                (start == null || start < it.timestamp) &&
+                    (end == null || end > it.timestamp)
             }
-        }
 
-        private fun List<KafkaRecord>.filterByContent(filterText: String?, exactMatch: Boolean, fieldProvider: (KafkaRecord) -> String?): List<KafkaRecord> {
-            val insensitiveText = filterText?.let(::insensitiveText)
+        private fun List<KafkaRecord>.filterByContent(
+            filterText: String?,
+            exactMatch: Boolean,
+            fieldProvider: (KafkaRecord) -> String?
+        ): List<KafkaRecord> {
+            val normalizedFilter = filterText?.let(::insensitiveText) ?: return this
 
-            return if (insensitiveText != null) {
-                filter { record ->
-                    val fieldContent = fieldProvider.invoke(record)
+            return filter { record ->
+                val content = fieldProvider(record)?.let(::insensitiveText)
+                    ?: return@filter false
 
-                    if (exactMatch) {
-                        fieldContent != null && insensitiveText(fieldContent) == insensitiveText
-                    } else {
-                        fieldContent != null && insensitiveText(fieldContent).contains(insensitiveText)
-                    }
+                if (exactMatch) {
+                    content == normalizedFilter
+                } else {
+                    content.contains(normalizedFilter)
                 }
-            } else {
-                this
             }
         }
 
@@ -303,4 +270,14 @@ class CachingKafkaAdminService(
                 .replace("\n", "")
         }
     }
+
+    private fun batchSize(maxRecords: Int, filter: RecordFilter?): Int =
+        if (filter == null) min(maxRecords, kafkaReadBatchSize) else kafkaReadBatchSize
+
+    private fun partitions(topicName: String, partition: Int?): List<Int> =
+        partition?.let { listOf(it) }
+            ?: kafkaReader.getPartitions(topicName).map { it.partition() }
+
+    private fun List<KafkaRecord>.filteredBy(filter: RecordFilter?): List<KafkaRecord> =
+        if (filter == null) this else filterRecords(filter, this)
 }

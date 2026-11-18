@@ -17,6 +17,7 @@ jobs:
     permissions:
       contents: write
       id-token: write
+      packages: read
     outputs:
       image: ${{ steps.docker-build-push.outputs.image }}
     steps:
@@ -34,21 +35,30 @@ jobs:
       - name: Sett opp gradle
         uses: gradle/actions/setup-gradle@v4
 
-      - name: Setup node
-        uses: actions/setup-node@v3
+      - name: Sett opp pnpm
+        uses: pnpm/action-setup@v4
         with:
-          node-version: 18
-          cache: 'npm'
-          cache-dependency-path: 'web-app/package-lock.json'
+          version: 10
+          package_json_file: 'web-app/package.json'
+
+      - name: Setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: 'https://npm.pkg.github.com'
+          cache: 'pnpm'
+          cache-dependency-path: 'web-app/pnpm-lock.yaml'
 
       - name: Bygg prosjekt
         run: ./gradlew assemble
 
-      - name: Installer npm dependencies
-        run: npm ci --legacy-peer-deps --prefix web-app
+      - name: Installer pnpm dependencies
+        run: pnpm install --frozen-lockfile  --strict-peer-dependencies=false --prefix web-app
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.READER_TOKEN}}
 
       - name: Bygg frontend-filer
-        run: npm run build --prefix web-app
+        run: pnpm --dir web-app build
 
       - name: Build og push docker-image
         uses: nais/docker-build-push@v0
