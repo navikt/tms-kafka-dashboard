@@ -1,2 +1,2 @@
 [libraries]
-ulId-creater = { group = "com.github.f4b6a3", name = "ulid-creator", version = "5.2.3" }
+ulId-creater = { group = "com.github.f4b6a3", name = "ulid-creator", version = "5.2.4" }
