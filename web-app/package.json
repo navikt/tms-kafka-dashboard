@@ -29,9 +29,9 @@
     "not op_mini all"
   ],
   "dependencies": {
-    "@navikt/ds-css": "8.22.1",
-    "@navikt/ds-react": "8.22.1",
-    "@navikt/ds-tokens": "8.22.1",
+    "@navikt/ds-css": "8.23.0",
+    "@navikt/ds-react": "8.23.0",
+    "@navikt/ds-tokens": "8.23.0",
     "@navikt/fnrvalidator": "^2.2.1",
     "axios": "1.21.1",
     "classnames": "2.5.1",
